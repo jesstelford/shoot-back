@@ -21,6 +21,7 @@ Unique endless sidescrolling shooter for 2 players.
 * P1 starts the game as a regular side-scrolling shooter
 * When shot, the player is teleported back to the start of the game (in time &
   space)
+* And everything is vertically reversed (flipped)
 * The original play through (P1a) is now played back on auto
 * While the player plays as a clone of the first (P1b)
 * So now there are two versions of the player (P1a & P1b) killing enemies
@@ -39,4 +40,21 @@ Unique endless sidescrolling shooter for 2 players.
 * P1 appears to be moving in reverse (as if P2 is pushing them back)
 * P2 has the same teleport ability as P1, 
 * When P2 is teleported back, the same thing happens as with P1.
-* The number lives P2 has is the number of kills P1 made +1?
+* The number lives P2 has is the number of kills P1 made +1Describe the game?
+* At each point where P1 died, a new P1 is spawned by flying out of the
+  "valuable" ship
+* The P1's are AI controlled
+
+## Implementation
+
+### Phase 1
+
+The side-scrolling shooter
+
+### Phase 2
+
+Reset after dying
+
+### Phase 3
+
+2 player / reverse
