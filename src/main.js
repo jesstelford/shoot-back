@@ -1,6 +1,9 @@
 'use strict';
 
-var framerate = require('./framerate')(60);
+var getPlayer = require('./player'),
+    getBullet = require('./bullet'),
+    framerate = require('./framerate')(60),
+    bulletCache = require('./bullet-cache');
 
 var canvas = document.querySelector('canvas'),
     ctx = canvas.getContext('2d'),
@@ -13,10 +16,12 @@ var canvas = document.querySelector('canvas'),
     KEY_SPACE = 32,
     keyState = Object.create(null), // for...in without .hasOwnProperty
     player = getPlayer(ctx),
-    bulletCache = new Set(),
     bullets = new Set(),
-    bulletPath = new Path2D('M-2.5 0.5 l4 0'),
-    newBullet = null;
+    newBullet = null,
+    elapsedTime = 0,
+    targetElapsedTime = 1000 / 60, // 60fps
+    playerPos,
+    steps;
 
 function resizeCanvas() {
   var w = window;
@@ -45,13 +50,18 @@ function isKeyHeld(key) {
 }
 
 function keydown(event) {
+  event.preventDefault();
+  console.log(event.keyCode);
   if (!keyState[event.keyCode]) {
     keyState[event.keyCode] = 1;
   }
+  return false;
 }
 
 function keyup(event) {
+  event.preventDefault();
   delete keyState[event.keyCode];
+  return false;
 }
 
 function keysProcessed() {
@@ -62,8 +72,8 @@ function keysProcessed() {
 }
 
 window.addEventListener('resize', resizeCanvas, false);
-window.addEventListener('keydown', keydown, false);
-window.addEventListener('keyup', keyup, false);
+document.addEventListener('keydown', keydown, false);
+document.addEventListener('keyup', keyup, false);
 
 resizeCanvas();
 
@@ -80,7 +90,7 @@ function handleBullets(bullets, steps) {
       bullets.delete(bullet);
 
       // put onto the cached bullets list
-      bulletCache.add(bullet);
+      bulletCache.put(bullet);
     } else {
       bullet.render();
     }
@@ -90,9 +100,8 @@ function handleBullets(bullets, steps) {
 
 function loop() {
 
-  var elapsedTime = framerate.time(Date.now()),
-      targetElapsedTime = 1000 / 60, // 60fps
-      steps = elapsedTime / targetElapsedTime;
+  elapsedTime = framerate.time(Date.now());
+  steps = elapsedTime / targetElapsedTime;
 
   /* console.log('average time for last 60 frames: ', framerate.rate()); */
 
@@ -122,14 +131,13 @@ function loop() {
 
   if (isKeyPressed(KEY_SPACE)) {
 
-    if(bulletCache.size > 0) {
-      newBullet = bulletCache.values().next().value;
-      bulletCache.remove(newBullet);
-    } else {
-      newBullet = getBullet(ctx);
-    }
+    newBullet = bulletCache.get(getBullet.bind(this, ctx, canvas.width));
 
     newBullet.init();
+
+    playerPos = player.getPos();
+    newBullet.moveTo(playerPos.x, playerPos.y);
+
     bullets.add(newBullet);
   }
 
@@ -142,117 +150,3 @@ function loop() {
   requestAnimationFrame(loop);
 
 }
-
-function getPlayer(ctx) {
-
-  var x = 50,
-      y = 50,
-      scale = 5,
-      colour = 'blue',
-      path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4');
-
-  return {
-
-    render: function() {
-      ctx.lineWidth = 1;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.strokeStyle = colour;
-
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(scale, scale);
-
-      ctx.stroke(path);
-      ctx.restore();
-    },
-
-    setScale: function(toScale) {
-      scale = toScale;
-    },
-
-    setColour: function(toColour) {
-      colour = toColour;
-    },
-
-    moveTo: function(toX, toY) {
-      x = toX;
-      y = toY;
-    },
-
-    move: function(dx, dy) {
-      x += dx;
-      y += dy;
-    }
-
-  };
-}
-
-function getBullet(ctx) {
-
-  var x = 0,
-      y = 0,
-      alive = true,
-      scale = 1,
-      colour = 'blue';
-
-  return {
-
-    init: function() {
-      x = 0;
-      y = 0;
-      alive = true;
-      scale = 1;
-      colour = 'blue';
-    },
-
-    update: function(steps) {
-      this.movement(steps);
-    },
-
-    movement: function(steps) {
-      this.move(steps, 0);
-      if (x >= canvas.width) {
-        alive = false;
-      }
-    },
-
-    render: function() {
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.strokeStyle = colour;
-
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(scale, scale);
-
-      ctx.stroke(bulletPath);
-      ctx.restore();
-    },
-
-    setScale: function(toScale) {
-      scale = toScale;
-    },
-
-    setColour: function(toColour) {
-      colour = toColour;
-    },
-
-    moveTo: function(toX, toY) {
-      x = toX;
-      y = toY;
-    },
-
-    move: function(dx, dy) {
-      x += dx;
-      y += dy;
-    },
-
-    dead: function() {
-      return !alive;
-    }
-
-  };
-}
-

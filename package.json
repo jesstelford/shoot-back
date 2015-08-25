@@ -9,6 +9,9 @@
   },
   "author": "Jess Telford <hi@jes.st>",
   "license": "ISC",
+  "dependencies": {
+    "object-assign": "^4.0.1"
+  },
   "devDependencies": {
     "browserify": "^11.0.1"
   }
