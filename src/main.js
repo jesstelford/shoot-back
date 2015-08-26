@@ -2,6 +2,7 @@
 
 var getPlayer = require('./player'),
     getBullet = require('./bullet'),
+    getCamera = require('./camera'),
     framerate = require('./framerate')(60),
     bulletCache = require('./bullet-cache');
 
@@ -15,6 +16,7 @@ var canvas = document.querySelector('canvas'),
     KEY_DOWN = 40,
     KEY_SPACE = 32,
     keyState = Object.create(null), // for...in without .hasOwnProperty
+    camera,
     player = getPlayer(ctx),
     player2 = getPlayer(ctx),
     bullets = new Set(),
@@ -68,6 +70,12 @@ function resizeCanvas() {
   var w = window;
   canvas.width = w.innerWidth
   canvas.height = w.innerHeight;
+
+  if (!camera) {
+    camera = getCamera(0, 0, canvas.width, canvas.height);
+  } else {
+    camera.setSize(canvas.width, canvas.height);
+  }
 }
 
 function init() {
