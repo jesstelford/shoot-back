@@ -32,11 +32,9 @@ module.exports = function getBullet(ctx) {
       path: bulletPath,
 
       init: function() {
-        this.x = 0;
-        this.y = 0;
-        alive = true;
-        this.scale = 1;
-        this.colour = 'blue';
+        this.moveTo(0, 0);
+        this.setScale(1);
+        this.setColour('blue');
         this.setTtl(3000);
       },
 
