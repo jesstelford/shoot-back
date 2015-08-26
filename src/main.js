@@ -23,14 +23,6 @@ var canvas = document.querySelector('canvas'),
     playerPos,
     steps;
 
-function resizeCanvas() {
-  var w = window;
-  canvas.width = w.innerWidth
-  canvas.height = w.innerHeight;
-
-  loop();
-}
-
 /*
  * Key states:
  * undefined === up
@@ -71,11 +63,16 @@ function keysProcessed() {
   }
 }
 
-window.addEventListener('resize', resizeCanvas, false);
-document.addEventListener('keydown', keydown, false);
-document.addEventListener('keyup', keyup, false);
+function resizeCanvas() {
+  var w = window;
+  canvas.width = w.innerWidth
+  canvas.height = w.innerHeight;
+}
 
-resizeCanvas();
+function init() {
+  resizeCanvas();
+  loop();
+}
 
 function handleBullets(bullets, steps) {
 
@@ -150,3 +147,10 @@ function loop() {
   requestAnimationFrame(loop);
 
 }
+
+window.addEventListener('resize', resizeCanvas, false);
+document.addEventListener('keydown', keydown, false);
+document.addEventListener('keyup', keyup, false);
+
+init();
+
