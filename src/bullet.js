@@ -6,13 +6,13 @@ var movable = require('./mixins/movable'),
     colourable = require('./mixins/colourable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
+    timerDeath = require('./mixins/timer-death'),
     objectAssign = require('object-assign');
 
-var bulletPath = new Path2D('M-2.5 0.5 l4 0');
+var bulletPath = new Path2D('M-2.5 0.5 l4 0'),
+    speed = 10;
 
-module.exports = function getBullet(ctx, canvasWidth) {
-
-  var alive = true;
+module.exports = function getBullet(ctx) {
 
   var bullet = objectAssign(
     {},
@@ -22,6 +22,7 @@ module.exports = function getBullet(ctx, canvasWidth) {
     scalable,
     strokable,
     renderable,
+    timerDeath,
     {
       x: 0,
       y: 0,
@@ -36,21 +37,20 @@ module.exports = function getBullet(ctx, canvasWidth) {
         alive = true;
         this.scale = 1;
         this.colour = 'blue';
+        this.setTtl(3000);
       },
 
       update: function(steps) {
         this.movement(steps);
+        this.updateDeath(steps);
       },
 
       movement: function(steps) {
-        this.move(steps * 10, 0);
-        if (this.x >= canvasWidth) {
-          alive = false;
-        }
+        this.move(steps * speed, 0);
       },
 
       dead: function() {
-        return !alive;
+        return this.ttl <= 0;
       }
 
     }

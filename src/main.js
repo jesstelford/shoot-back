@@ -130,7 +130,7 @@ function loop() {
 
   if (isKeyPressed(KEY_SPACE)) {
 
-    newBullet = bulletCache.get(getBullet.bind(this, ctx, canvas.width));
+    newBullet = bulletCache.get(getBullet.bind(this, ctx));
 
     newBullet.init();
 
