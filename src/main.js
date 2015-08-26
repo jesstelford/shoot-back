@@ -16,6 +16,7 @@ var canvas = document.querySelector('canvas'),
     KEY_SPACE = 32,
     keyState = Object.create(null), // for...in without .hasOwnProperty
     player = getPlayer(ctx),
+    player2 = getPlayer(ctx),
     bullets = new Set(),
     newBullet = null,
     elapsedTime = 0,
@@ -71,6 +72,7 @@ function resizeCanvas() {
 
 function init() {
   resizeCanvas();
+  player2.moveTo(300, 200);
   loop();
 }
 
@@ -138,8 +140,18 @@ function loop() {
     bullets.add(newBullet);
   }
 
+  for(var bullet of bullets) {
+    if (player2.collidingWith(bullet)) {
+      player2.setColour('red');
+      break;
+    } else {
+      player2.setColour('blue');
+    }
+  }
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   player.render();
+  player2.render();
 
   handleBullets(bullets, steps);
 
