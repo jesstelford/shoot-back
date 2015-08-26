@@ -42,6 +42,15 @@ module.exports = {
 
   getAABB: function() {
 
+    if (!this.bounds) {
+      return {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0
+      }
+    }
+
     var aabb = {
       x: this._calcBounds.x,
       y: this._calcBounds.y,
