@@ -99,7 +99,10 @@ function handleBullets(bullets, steps) {
       // put onto the cached bullets list
       bulletCache.put(bullet);
     } else {
-      bullet.render();
+      // only render when on screen
+      if (bullet.collidingWith(camera)) {
+        bullet.render();
+      }
     }
 
   });
@@ -158,8 +161,14 @@ function loop() {
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  player.render();
-  player2.render();
+
+  // only render when on screen
+  if (player.collidingWith(camera)) {
+    player.render();
+  }
+  if (player2.collidingWith(camera)) {
+    player2.render();
+  }
 
   handleBullets(bullets, steps);
 
