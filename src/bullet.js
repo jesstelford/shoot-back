@@ -4,6 +4,7 @@ var movable = require('./mixins/movable'),
     scalable = require('./mixins/scalable'),
     strokable = require('./mixins/strokable'),
     colourable = require('./mixins/colourable'),
+    collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
     objectAssign = require('object-assign');
 
@@ -13,37 +14,54 @@ module.exports = function getBullet(ctx, canvasWidth) {
 
   var alive = true;
 
-  return objectAssign({}, movable, colourable, scalable, strokable, renderable, {
+  var bullet = objectAssign(
+    {},
+    movable,
+    colourable,
+    collidable,
+    scalable,
+    strokable,
+    renderable,
+    {
+      x: 0,
+      y: 0,
+      colour: 'blue',
+      ctx: ctx,
+      lineWidth: 3,
+      path: bulletPath,
 
-    x: 0,
-    y: 0,
-    colour: 'blue',
-    ctx: ctx,
-    lineWidth: 3,
-    path: bulletPath,
+      init: function() {
+        this.x = 0;
+        this.y = 0;
+        alive = true;
+        this.scale = 1;
+        this.colour = 'blue';
+      },
 
-    init: function() {
-      this.x = 0;
-      this.y = 0;
-      alive = true;
-      this.scale = 1;
-      this.colour = 'blue';
-    },
+      update: function(steps) {
+        this.movement(steps);
+      },
 
-    update: function(steps) {
-      this.movement(steps);
-    },
+      movement: function(steps) {
+        this.move(steps * 10, 0);
+        if (this.x >= canvasWidth) {
+          alive = false;
+        }
+      },
 
-    movement: function(steps) {
-      this.move(steps * 10, 0);
-      if (this.x >= canvasWidth) {
-        alive = false;
+      dead: function() {
+        return !alive;
       }
-    },
 
-    dead: function() {
-      return !alive;
     }
+  );
 
-  });
+  bullet.setCollisionBounds([
+    {x: -2.5, y: -1.5},
+    {x: 2.5, y: -1.5},
+    {x: 2.5, y: 1.5},
+    {x: -2.5, y: 1.5}
+  ]);
+
+  return bullet;
 };
