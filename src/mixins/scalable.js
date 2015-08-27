@@ -6,6 +6,10 @@ module.exports = {
 
   setScale: function(toScale) {
     this.scale = toScale;
+  },
+
+  getScale: function() {
+    return this.scale;
   }
 
 };

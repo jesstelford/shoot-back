@@ -7,12 +7,13 @@ var movable = require('./mixins/movable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
     timerDeath = require('./mixins/timer-death'),
+    transformer = require('./mixins/transformer'),
     objectAssign = require('object-assign');
 
 var bulletPath = new Path2D('M-2.5 0.5 l4 0'),
     speed = 10;
 
-module.exports = function getBullet(ctx) {
+module.exports = function getBullet() {
 
   var bullet = objectAssign(
     {},
@@ -23,11 +24,11 @@ module.exports = function getBullet(ctx) {
     strokable,
     renderable,
     timerDeath,
+    transformer,
     {
       x: 0,
       y: 0,
       colour: 'blue',
-      ctx: ctx,
       lineWidth: 3,
       path: bulletPath,
 

@@ -4,23 +4,19 @@ module.exports = {
 
   isRenderable: true,
 
-  render: function() {
+  render: function(ctx) {
 
-    this.ctx.save();
-
-    if (this.isMovable) {
-      this.ctx.translate(Math.floor(this.x), Math.floor(this.y));
-    }
-
-    if (this.isScalable) {
-      this.ctx.scale(this.scale, this.scale);
+    if (this.isTransformer) {
+      this.setTransformations(ctx);
     }
 
     if (this.isStrokable) {
-      this.stroke();
+      this.stroke(ctx);
     }
 
-    this.ctx.restore();
+    if (this.isTransformer) {
+      this.resetTransformations(ctx);
+    }
   }
 
 };

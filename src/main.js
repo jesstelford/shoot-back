@@ -17,8 +17,8 @@ var canvas = document.querySelector('canvas'),
     KEY_SPACE = 32,
     keyState = Object.create(null), // for...in without .hasOwnProperty
     camera,
-    player = getPlayer(ctx),
-    player2 = getPlayer(ctx),
+    player = getPlayer(),
+    player2 = getPlayer(),
     bullets = new Set(),
     newBullet = null,
     elapsedTime = 0,
@@ -101,7 +101,7 @@ function handleBullets(bullets, steps) {
     } else {
       // only render when on screen
       if (bullet.collidingWith(camera)) {
-        bullet.render();
+        bullet.render(ctx);
       }
     }
 
@@ -141,7 +141,7 @@ function loop() {
 
   if (isKeyPressed(KEY_SPACE)) {
 
-    newBullet = bulletCache.get(getBullet.bind(this, ctx));
+    newBullet = bulletCache.get(getBullet);
 
     newBullet.init();
 
@@ -164,10 +164,10 @@ function loop() {
 
   // only render when on screen
   if (player.collidingWith(camera)) {
-    player.render();
+    player.render(ctx);
   }
   if (player2.collidingWith(camera)) {
-    player2.render();
+    player2.render(ctx);
   }
 
   handleBullets(bullets, steps);

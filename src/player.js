@@ -6,11 +6,12 @@ var movable = require('./mixins/movable'),
     colourable = require('./mixins/colourable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
+    transformer = require('./mixins/transformer'),
     objectAssign = require('object-assign');
 
 var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4');
 
-module.exports = function getPlayer(ctx) {
+module.exports = function getPlayer() {
 
   var player = objectAssign(
     {},
@@ -20,14 +21,14 @@ module.exports = function getPlayer(ctx) {
     scalable,
     strokable,
     renderable,
+    transformer,
     {
       x: 50,
       y: 50,
       colour: 'blue',
       scale: 5,
       lineWidth: 1,
-      path: path,
-      ctx: ctx
+      path: path
     }
   );
 
