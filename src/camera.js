@@ -2,6 +2,7 @@
 
 var movable = require('./mixins/movable'),
     collidable = require('./mixins/collidable'),
+    transformer = require('./mixins/transformer'),
     objectAssign = require('object-assign');
 
 function setCollisionBoundsFor(camera, width, height) {
@@ -19,12 +20,18 @@ module.exports = function getCamera(x, y, width, height) {
     {},
     movable,
     collidable,
+    transformer,
     {
       x: x,
       y: y,
 
       setSize: function(width, height) {
         setCollisionBoundsFor(camera, width, height);
+      },
+
+      // Overwite the movement function to go in the other direction
+      getPos() {
+        return {x: -this.x, y: -this.y}
       }
     }
   );

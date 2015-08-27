@@ -19,6 +19,7 @@ var canvas = document.querySelector('canvas'),
     camera,
     player = getPlayer(),
     player2 = getPlayer(),
+    playerMoveSpeed = 5,
     bullets = new Set(),
     newBullet = null,
     elapsedTime = 0,
@@ -116,19 +117,19 @@ function loop() {
   /* console.log('average time for last 60 frames: ', framerate.rate()); */
 
   if (isKeyDown(KEY_UP)) {
-    player.move(0, -1 * steps);
+    player.move(0, -playerMoveSpeed * steps);
   }
 
   if (isKeyDown(KEY_DOWN)) {
-    player.move(0, 1 * steps);
+    player.move(0, playerMoveSpeed * steps);
   }
 
   if (isKeyDown(KEY_LEFT)) {
-    player.move(-1 * steps, 0);
+    player.move(-playerMoveSpeed * steps, 0);
   }
 
   if (isKeyDown(KEY_RIGHT)) {
-    player.move(1 * steps, 0);
+    player.move(playerMoveSpeed * steps, 0);
   }
 
   if (isKeyDown(KEY_PAGE_UP)) {
@@ -160,7 +161,11 @@ function loop() {
     }
   }
 
+  camera.move(1, 0);
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  camera.setTransformations(ctx);
 
   // only render when on screen
   if (player.collidingWith(camera)) {
@@ -171,6 +176,8 @@ function loop() {
   }
 
   handleBullets(bullets, steps);
+
+  camera.resetTransformations(ctx);
 
   keysProcessed();
   requestAnimationFrame(loop);
