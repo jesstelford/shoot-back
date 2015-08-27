@@ -21,17 +21,14 @@ module.exports = function getPlayer() {
     scalable,
     strokable,
     renderable,
-    transformer,
-    {
-      x: 50,
-      y: 50,
-      colour: 'blue',
-      scale: 5,
-      lineWidth: 1,
-      path: path
-    }
+    transformer
   );
 
+  player.moveTo(50, 50);
+  player.setColour('blue');
+  player.setScale(5);
+  player.setLineWidth(1);
+  player.setPath(path);
   player.setCollisionBounds([
     {x: -10.5, y: -4.5},
     {x: 10.5, y: 0.5},

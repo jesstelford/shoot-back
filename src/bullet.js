@@ -26,15 +26,11 @@ module.exports = function getBullet() {
     timerDeath,
     transformer,
     {
-      x: 0,
-      y: 0,
-      colour: 'blue',
-      lineWidth: 3,
-      path: bulletPath,
-
       init: function() {
         this.moveTo(0, 0);
         this.setScale(1);
+        this.setLineWidth(3);
+        this.setPath(bulletPath);
         this.setColour('blue');
         this.setTtl(3000);
       },
@@ -54,6 +50,8 @@ module.exports = function getBullet() {
 
     }
   );
+
+  bullet.init();
 
   bullet.setCollisionBounds([
     {x: -2.5, y: -1.5},

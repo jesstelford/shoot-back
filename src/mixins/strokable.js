@@ -4,6 +4,14 @@ module.exports = {
 
   isStrokable: true,
 
+  setLineWidth: function(width) {
+    this.lineWidth = width;
+  },
+
+  setPath: function(path) {
+    this.path = path;
+  },
+
   stroke: function(ctx) {
 
     ctx.lineWidth = this.lineWidth;
