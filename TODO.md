@@ -1,4 +1,4 @@
-* Build steps
+* Get uglify working for JS
 * Obstacles at top / bottom randomly generated
 * Randomly generated enemies
 * Enemy movement patterns

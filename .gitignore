@@ -1,4 +1,5 @@
-public/main.js
+build/*
+dist/*
 
 # Created by https://www.gitignore.io/api/vim,node
 
