@@ -58,7 +58,7 @@ gulp.task('build_source', function() {
     .on('error', browserifyError)
     .pipe(source('build.js'))
     .pipe(buffer())
-    /* .pipe(gulpif(prod, uglify())) */
+    .pipe(gulpif(prod, uglify()))
     .pipe(gulp.dest('build'));
 });
 

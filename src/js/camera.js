@@ -14,6 +14,7 @@ function setCollisionBoundsFor(camera, width, height) {
   ]);
 }
 
+
 module.exports = function getCamera(x, y, width, height) {
 
   var camera = objectAssign(
@@ -30,7 +31,7 @@ module.exports = function getCamera(x, y, width, height) {
       },
 
       // Overwite the movement function to go in the other direction
-      getPos() {
+      getPos: function() {
         return {x: -this.x, y: -this.y}
       }
     }
