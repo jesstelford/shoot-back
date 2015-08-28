@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "NODE_ENV=development gulp watch",
     "build": "NODE_ENV=development gulp build",
-    "build-prod": "NODE_ENV=production gulp dist --prod"
+    "build:prod": "NODE_ENV=production gulp dist --prod"
   },
   "author": "Jess Telford <hi@jes.st>",
   "license": "ISC",
