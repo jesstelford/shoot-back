@@ -47,7 +47,6 @@ function isKeyHeld(key) {
 
 function keydown(event) {
   event.preventDefault();
-  console.log(event.keyCode);
   if (!keyState[event.keyCode]) {
     keyState[event.keyCode] = 1;
   }
@@ -113,8 +112,6 @@ function loop() {
 
   elapsedTime = framerate.time(Date.now());
   steps = elapsedTime / targetElapsedTime;
-
-  /* console.log('average time for last 60 frames: ', framerate.rate()); */
 
   if (isKeyDown(KEY_UP)) {
     player.move(0, -playerMoveSpeed * steps);
@@ -189,4 +186,3 @@ document.addEventListener('keydown', keydown, false);
 document.addEventListener('keyup', keyup, false);
 
 init();
-
