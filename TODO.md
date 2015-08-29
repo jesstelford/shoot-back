@@ -25,3 +25,9 @@
 * Restrict movement of player to within canvas
 * Touch interactions
 * Test on mobile (landscape only)
+* Particles when things are shot
+  * Cast a line from geometric center to collision point, then use as normal for
+  * particles to burst from
+* Particles when things die / explode
+* Generate Beat-y music
+  * Increase music tempo with the number of things drawn on screen.
