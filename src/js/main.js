@@ -31,12 +31,10 @@ var canvas = document.querySelector('canvas'),
     playerPos,
     steps;
 
-/*
- * Key states:
- * undefined === up
- * 1 === just pressed
- * 2 === held
- */
+// Key states:
+// undefined === up
+// 1 === just pressed
+// 2 === held
 function isKeyDown(key) {
   return !!keyState[key];
 }
