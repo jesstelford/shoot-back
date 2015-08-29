@@ -85,7 +85,7 @@ function init() {
   resizeCanvas();
   player2.moveTo(300, 200);
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     let obstacle = obstacles.get();
     obstacle.moveTo(500 + (i * 250), 10);
     obstaclesLive.put(obstacle);
