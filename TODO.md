@@ -1,3 +1,5 @@
+* Rotatable elements
+* Independantly scalable items (x & y)
 * Obstacles at top / bottom randomly generated
   * Placement
     * Always X pixels apart
