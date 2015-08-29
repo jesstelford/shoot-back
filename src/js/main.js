@@ -4,9 +4,10 @@ var getPlayer = require('./player'),
     getBullet = require('./bullet'),
     getCamera = require('./camera'),
     framerate = require('./framerate')(60),
-    bulletCache = require('./bullet-cache');
+    cacheGenerator = require('./cache-generator');
 
 var canvas = document.querySelector('canvas'),
+    bulletCache = cacheGenerator('bullets'),
     ctx = canvas.getContext('2d'),
     KEY_PAGE_UP = 34,
     KEY_PAGE_DOWN = 33,
