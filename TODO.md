@@ -5,6 +5,14 @@
     * Then Randomly generated variations
       * top / bottom have to have limits so they never overlap (ie; player can
       * still get through)
+* Player death
+* Restartable game
+* Menu / Intro screen (StarWars text scroller with skip button)
+  * Drop info in localStorage about intro seen or not
+* Scoring, based on;
+  * number of kills
+  * distance travelled
+* High score
 * Enemies
   * Fire bullets at player(s)
     * Ever X ms
