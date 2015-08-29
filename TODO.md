@@ -1,14 +1,10 @@
 * Obstacles at top / bottom randomly generated
   * Cache a series of paths (5?)
-  * "Obstacle" generator like player/bullet/etc
-  * Randomly select a path for an obstacle
   * Placement
     * Always X pixels apart
     * Then Randomly generated variations
       * top / bottom have to have limits so they never overlap (ie; player can
       * still get through)
-  * Cache obstacles same as bullets
-  * Refactor out to have generic caches
 * Enemies
   * Fire bullets at player(s)
     * Ever X ms
