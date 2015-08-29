@@ -71,6 +71,10 @@ module.exports = {
       aabb.y += this.y;
     }
 
+    if (this.isRotatable) {
+      // TODO
+    }
+
     return aabb;
 
   },

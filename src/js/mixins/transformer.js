@@ -4,6 +4,14 @@ module.exports = {
 
   isTransformer: true,
 
+  /**
+   * Apply tranformations on a renderable object
+   *
+   * Transformations (as with any matrix transformation) must be applied in
+   * reverse order, so it's best to read these transforms from bottom to top
+   *
+   * @param Object ctx The Canvas' 2D Context
+   */
   setTransformations: function(ctx) {
 
     var pos,
@@ -13,12 +21,18 @@ module.exports = {
 
     if (this.isMovable) {
       pos = this.getPos();
-      ctx.translate(Math.floor(pos.x), Math.floor(pos.y));
+      pos.x = Math.floor(pos.x);
+      pos.y = Math.floor(pos.y);
+      ctx.translate(pos.x, pos.y);
     }
 
     if (this.isScalable) {
       scale = this.getScale();
       ctx.scale(scale, scale);
+    }
+
+    if (this.isRotatable) {
+      ctx.rotate(this.getRotation());
     }
 
   },

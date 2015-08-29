@@ -89,8 +89,15 @@ function init() {
   player2.moveTo(300, 200);
 
   for (i = 0; i < 4; i++) {
-    obstacle = obstacles.get();
+    obstacle = obstacles.get(i);
     obstacle.moveTo(500 + (i * 250), 10);
+    obstaclesLive.put(obstacle);
+  }
+
+  for (i = 0; i < 4; i++) {
+    obstacle = obstacles.get(i);
+    obstacle.moveTo(500 + (i * 250), canvas.height);
+    obstacle.rotateTo(Math.PI);
     obstaclesLive.put(obstacle);
   }
 
