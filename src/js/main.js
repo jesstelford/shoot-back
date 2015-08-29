@@ -5,7 +5,8 @@ var getPlayer = require('./player'),
     getCamera = require('./camera'),
     framerate = require('./framerate')(60),
     cacheGenerator = require('./cache-generator'),
-    obstacles = require('./obstacles');
+    obstacles = require('./obstacles'),
+    forOf = require('./utils/for-of');
 
 var canvas = document.querySelector('canvas'),
     bulletCache = cacheGenerator('bullets'),
@@ -82,11 +83,15 @@ function resizeCanvas() {
 }
 
 function init() {
+
+  var i,
+      obstacle;
+
   resizeCanvas();
   player2.moveTo(300, 200);
 
-  for (let i = 0; i < 4; i++) {
-    let obstacle = obstacles.get();
+  for (i = 0; i < 4; i++) {
+    obstacle = obstacles.get();
     obstacle.moveTo(500 + (i * 250), 10);
     obstaclesLive.put(obstacle);
   }
@@ -165,23 +170,23 @@ function loop() {
 
   camera.setTransformations(ctx);
 
-  for(var bullet of bullets) {
+  forOf(bullets, function(bullet) {
     if (player2.collidingWith(bullet)) {
       player2.setColour('red');
-      break;
+      return false;
     } else {
       player2.setColour('blue');
     }
-  }
+  });
 
-  for (let obstacle of obstaclesLive) {
+  forOf(obstaclesLive, function(obstacle) {
     if (player.collidingWith(obstacle)) {
       player.setColour('red');
-      break;
+      return false;
     } else {
       player.setColour('blue');
     }
-  }
+  });
 
   // only render when on screen
   if (player.collidingWith(camera)) {
@@ -192,9 +197,9 @@ function loop() {
   }
 
   // Don't need to check if on camera since we've manually placed them
-  for (let obstacle of obstaclesLive) {
+  forOf(obstaclesLive, function(obstacle) {
     obstacle.render(ctx);
-  }
+  });
 
   handleBullets(bullets, steps);
 

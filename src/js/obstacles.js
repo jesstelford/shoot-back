@@ -2,7 +2,8 @@
 
 var getObstacle = require('./obstacle'),
     random = require('./random'),
-    cache = require('./cache-generator')('obstacles');
+    cache = require('./cache-generator')('obstacles'),
+    forOf = require('./utils/for-of');
 
 var types = [
   {
@@ -74,11 +75,16 @@ module.exports = {
       // we're looking for a particular type
       function(toSearch) {
 
-        for (let obstacle of toSearch) {
+        var found;
+
+        forOf(toSearch, function(obstacle) {
           if (obstacle.type === type) {
-            return obstacle;
+            found = obstacle;
+            return false;
           }
-        }
+        });
+
+        return found;
 
       }
     );
