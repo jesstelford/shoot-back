@@ -1,5 +1,4 @@
 * Obstacles at top / bottom randomly generated
-  * Cache a series of paths (5?)
   * Placement
     * Always X pixels apart
     * Then Randomly generated variations
