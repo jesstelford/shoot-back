@@ -28,12 +28,8 @@ module.exports = function getCamera(x, y, width, height) {
 
       setSize: function(width, height) {
         setCollisionBoundsFor(camera, width, height);
-      },
-
-      // Overwite the movement function to go in the other direction
-      getPos: function() {
-        return {x: -this.x, y: -this.y}
       }
+
     }
   );
 

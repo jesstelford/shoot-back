@@ -173,7 +173,7 @@ function loop() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  camera.setTransformations(ctx);
+  camera.setTransformations(ctx, true);
 
   forOf(bullets, function(bullet) {
     if (player2.collidingWith(bullet)) {

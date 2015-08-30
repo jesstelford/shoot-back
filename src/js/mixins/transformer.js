@@ -12,7 +12,7 @@ module.exports = {
    *
    * @param Object ctx The Canvas' 2D Context
    */
-  setTransformations: function(ctx) {
+  setTransformations: function(ctx, inverse) {
 
     var pos,
         scale;
@@ -23,7 +23,11 @@ module.exports = {
       pos = this.getPos();
       pos.x = Math.floor(pos.x);
       pos.y = Math.floor(pos.y);
-      ctx.translate(pos.x, pos.y);
+      if (inverse) {
+        ctx.translate(-pos.x, -pos.y);
+      } else {
+        ctx.translate(pos.x, pos.y);
+      }
     }
 
     if (this.isScalable) {
@@ -32,7 +36,11 @@ module.exports = {
     }
 
     if (this.isRotatable) {
-      ctx.rotate(this.getRotation());
+      if (inverse) {
+        ctx.rotate(this.getRotation());
+      } else {
+        ctx.rotate(this.getRotation());
+      }
     }
 
   },
