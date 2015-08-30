@@ -1,5 +1,14 @@
 'use strict';
 
+var forPairs = require('../utils/for-pairs');
+
+function normal(p1, p2) {
+  return {
+    x: p1.y - p2.y,
+    y: p2.x - p1.x
+  }
+}
+
 /**
  * Get the bounds rotated by `angle`
  *
@@ -38,6 +47,18 @@ function calculateRotatedBounds(bounds, angle) {
   });
 
   return result;
+}
+
+function calculateNormals(bounds) {
+
+  var result = []
+
+  forPairs(bounds, function(p1, p2) {
+    result.push(normal(p1, p2));
+  }, true);
+
+  return result;
+
 }
 
 /**
@@ -128,15 +149,67 @@ module.exports = {
    */
   setCollisionBounds: function(bounds) {
 
-    this._collisionAngleCache = 0;
     this.bounds = bounds;
 
-    if (this.isRotatable) {
-      this._collisionAngleCache = this.getRotation();
+    this.clearStaleCollisionData();
+    this.updateAllCollisionData();
+  },
+
+  updateAllCollisionData: function() {
+    this.updateCommonCollisionData();
+    this.updateAABBCollisionData();
+    this.updateSATCollisionData();
+  },
+
+  updateCommonCollisionData: function() {
+
+    if (this._calcRotated) {
+      return;
     }
 
     this._calcRotated = calculateRotatedBounds(this.bounds, this._collisionAngleCache);
+  },
+
+  updateAABBCollisionData: function() {
+
+    if (this._calcAABB) {
+      return;
+    }
+
     this._calcAABB = calculateAABB(this._calcRotated);
+  },
+
+  updateSATCollisionData: function() {
+
+    if (this._calcNormals) {
+      return;
+    }
+
+    this._calcNormals = calculateNormals(this._calcRotated);
+  },
+
+  clearStaleCollisionData: function() {
+
+    var clearIt = false;
+
+    var clearIt = (
+      this.isRotatable
+      && this.getRotation() !== this._collisionAngleCache
+    );
+
+    clearIt = clearIt || (
+      this.isScalable
+      && this.getScale() !== this._collisionScaleCache
+    );
+
+    if (clearIt) {
+      this._collisionAngleCache = this.isRotatable ? this.getRotation(): 0;
+      this._collisionScaleCache = this.isScalable ? this.getScale(): 1;
+      this._calcRotated = null;
+      this._calcAABB = null;
+      this._calcNormals = null;
+    }
+
   },
 
   /**
@@ -156,21 +229,6 @@ module.exports = {
         y: 0,
         w: 0,
         h: 0
-      }
-    }
-
-    if (this.isRotatable) {
-
-      newAngle = this.getRotation();
-
-      if (newAngle !== this._collisionAngleCache) {
-        this._collisionAngleCache = newAngle;
-        // recalculate boundaries due to new rotation
-        this._calcRotated = calculateRotatedBounds(
-          this.bounds,
-          this._collisionAngleCache
-        );
-        this._calcAABB = calculateAABB(this._calcRotated);
       }
     }
 
@@ -209,10 +267,22 @@ module.exports = {
    */
   collidingWith: function(collidable) {
 
+    // TODO: Move these out into some kind of 'update' function so they happen
+    // only once per loop rather than once per collision check
+    this.clearStaleCollisionData();
+    this.updateCommonCollisionData();
+    this.updateAABBCollisionData();
+
+    collidable.clearStaleCollisionData();
+    collidable.updateCommonCollisionData();
+    collidable.updateAABBCollisionData();
+
     // quickest check is for AABB's
     if (!AABBCollision(this.getAABB(), collidable.getAABB())) {
       return false;
     }
+
+    collidable.updateSATCollisionData();
 
     return SATCollision(this.bounds, collidable.bounds);
 
