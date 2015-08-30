@@ -284,8 +284,8 @@ module.exports = {
     );
 
     if (clearIt) {
-      this._collisionAngleCache = this.isRotatable ? this.getRotation() : 0;
-      this._collisionScaleCache = this.isScalable ? this.getScale() : 1;
+      this._collisionAngleCache = this.isRotatable ? this.getRotation() || 0 : 0;
+      this._collisionScaleCache = this.isScalable ? this.getScale() || 1 : 1;
       this._collisionPosCache = this.isMovable ? this.getPos() : {x: 0, y: 0};
       this._calcTransformed = null;
       this._calcAABB = null;
