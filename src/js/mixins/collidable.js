@@ -178,15 +178,28 @@ function projectionsOverlap(projection1, projection2) {
  *
  * @param bounds1 Array of {x, y} points
  * @param bounds2 Array of {x, y} points
+ * @param withResponse Boolean Calculate Minimum Translation Distance
  *
- * @return Boolean true if colliding
+ * @return Mixed true or false if collision found. When `withReponse` is true,
+ * {x, y} if collision, where {x, y} is the Minimum Translation Distance
+ * required to separate the two colliding bodies, false otherwise
  */
-function SATCollision(bounds1, normals1, bounds2, normals2) {
+function SATCollision(bounds1, normals1, bounds2, normals2, withResponse) {
 
-  var projection1,
-      projection2;
+  var collision,
+      projection1,
+      projection2,
+      overlapDistance1,
+      overlapDistance2,
+      overlap,
+      normalScale,
+      normalizedNormal,
+      normalizedLength,
+      axisLengthSquared,
+      mtdMinLength = Infinity,
+      mtd;
 
-  return normals1
+  collision = normals1
     // join the two sets of normals together
     .concat(normals2)
     // short-circuit the loop if a separation is found
@@ -195,9 +208,62 @@ function SATCollision(bounds1, normals1, bounds2, normals2) {
       projection1 = projectOntoAxis(bounds1, normal);
       projection2 = projectOntoAxis(bounds2, normal);
 
-      return projectionsOverlap(projection1, projection2);
+      // early out - there is a separation, and hence no MTD
+      if (!projectionsOverlap(projection1, projection2)) {
+        return false;
+      }
+
+      if (!withResponse) {
+        return true;
+      }
+
+      // find the interval overlaps
+      overlapDistance1 = projection1.max - projection2.min;
+      overlapDistance2 = projection2.max - projection1.min;
+
+      // Get the shortest overlap
+      if (overlapDistance1 < overlapDistance2) {
+        overlap = overlapDistance1;
+      } else {
+        overlap = overlapDistance2;
+      }
+
+      // Normalize the separation axis vector
+      axisLengthSquared = dot(normal, normal);
+
+      // How much do we need to scale the axis vector down by to be normalized?
+      normalScale = overlap / axisLengthSquared;
+
+      // normalize it
+      normalizedNormal = {
+        x: normal.x * normalScale,
+        y: normal.y * normalScale
+      }
+
+      // Now get its length
+      normalizedLength = dot(normalizedNormal, normalizedNormal);
+
+      // finally, is this the shortest MTD?
+      // NOTE: This will always be the shorted MTD, and may give odd results due
+      // to penetration, etc
+      if (normalizedLength < mtdMinLength) {
+        mtd = normalizedNormal;
+        mtdMinLength = normalizedLength;
+      }
+
+      return true;
 
     });
+
+  if (!collision) {
+    return false;
+  }
+
+  if (withResponse) {
+    return mtd;
+  }
+
+  return true;
 
 }
 
@@ -303,10 +369,11 @@ module.exports = {
    *
    * @param collidable Object Another collidable object
    * @param details Boolean Whether or not to do detailed phase collision
+   * @param withResponse Boolean Calculate Minimum Translation Distance
    *
    * @return Boolean true if colliding
    */
-  collidingWith: function(collidable, detailed) {
+  collidingWith: function(collidable, detailed, withResponse) {
 
     // TODO: Move these out into some kind of 'update' function so they happen
     // only once per loop rather than once per collision check
@@ -330,7 +397,7 @@ module.exports = {
     this.updateSATCollisionData();
     collidable.updateSATCollisionData();
 
-    return SATCollision(this._calcTransformed, this._calcNormals, collidable._calcTransformed, collidable._calcNormals);
+    return SATCollision(this._calcTransformed, this._calcNormals, collidable._calcTransformed, collidable._calcNormals, withResponse);
 
   }
 

@@ -29,7 +29,8 @@ var canvas = document.querySelector('canvas'),
     elapsedTime = 0,
     targetElapsedTime = 1000 / 60, // 60fps
     playerPos,
-    steps;
+    steps,
+    collisionResponse;
 
 // Key states:
 // undefined === up
@@ -185,11 +186,12 @@ function loop() {
   });
 
   forOf(obstaclesLive, function(obstacle) {
-    if (player.collidingWith(obstacle, true)) {
-      player.setColour('red');
-      return false;
-    } else {
-      player.setColour('blue');
+
+    collisionResponse = player.collidingWith(obstacle, true, true);
+
+    if (collisionResponse) {
+      // Shift the player back along the collision response vector
+      player.move(-collisionResponse.x, -collisionResponse.y);
     }
   });
 
