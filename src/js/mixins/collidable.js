@@ -263,9 +263,12 @@ module.exports = {
    * 1. AABB collision
    * 2. SAT collision
    *
+   * @param collidable Object Another collidable object
+   * @param details Boolean Whether or not to do detailed phase collision
+   *
    * @return Boolean true if colliding
    */
-  collidingWith: function(collidable) {
+  collidingWith: function(collidable, detailed) {
 
     // TODO: Move these out into some kind of 'update' function so they happen
     // only once per loop rather than once per collision check
@@ -282,6 +285,11 @@ module.exports = {
       return false;
     }
 
+    if (!detailed) {
+      return true;
+    }
+
+    this.updateSATCollisionData();
     collidable.updateSATCollisionData();
 
     return SATCollision(this.bounds, collidable.bounds);

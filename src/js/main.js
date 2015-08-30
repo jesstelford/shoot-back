@@ -120,7 +120,7 @@ function handleBullets(bullets, steps) {
       bulletCache.put(bullet);
     } else {
       // only render when on screen
-      if (bullet.collidingWith(camera)) {
+      if (bullet.collidingWith(camera, false)) {
         bullet.render(ctx);
       }
     }
@@ -194,10 +194,11 @@ function loop() {
   });
 
   // only render when on screen
-  if (player.collidingWith(camera)) {
+  if (player.collidingWith(camera, false)) {
     player.render(ctx);
   }
-  if (player2.collidingWith(camera)) {
+
+  if (player2.collidingWith(camera, false)) {
     player2.render(ctx);
   }
 
