@@ -1,5 +1,17 @@
 'use strict';
 
+/**
+ * Axis Aligned Bounding Box
+ *
+ * ie; The smallest area we can draw an upright rectangle to contain all the
+ * points.
+ *
+ * @param bounds Array of points {x, y}
+ * @param angle Float Radian angle of rotation of the points
+ *
+ * @return Object {x, y, w, h} where; x = left position, y = top position, w =
+ * width, and h = height
+ */
 function calculateAABB(bounds, angle) {
 
   var cosA,
@@ -9,12 +21,13 @@ function calculateAABB(bounds, angle) {
     angle = 0;
   }
 
+  // pre-calculate a couple of math things outside the loop below
   if (angle !== 0) {
     cosA = Math.cos(angle);
     sinA = Math.sin(angle);
   }
 
-  // Calculate Axis Aligned Bounding Box (AABB)
+  // Start with the smallest possible box then grow it to fit later
   var min = {
       x: Infinity,
       y: Infinity
@@ -38,6 +51,7 @@ function calculateAABB(bounds, angle) {
       y = point.y;
     }
 
+    // grow the box to fit this point
     min.x = Math.min(x, min.x);
     min.y = Math.min(y, min.y);
     max.x = Math.max(x, max.x);
@@ -52,6 +66,14 @@ function calculateAABB(bounds, angle) {
   }
 }
 
+/**
+ * Detect collision between two AABBs
+ *
+ * @param AABB1 Object {x, y, w, h}
+ * @param AABB2 Object {x, y, w, h}
+ *
+ * @return Boolean true if collision
+ */
 function AABBCollision(AABB1, AABB2) {
 
   return (
@@ -96,6 +118,13 @@ module.exports = {
     this._calcBounds = calculateAABB(this.bounds, this._collisionAngleCache);
   },
 
+  /**
+   * Get the most up to date AABB.
+   *
+   * Will take into account translations
+   *
+   * @return Object {x, y, w, h}
+   */
   getAABB: function() {
 
     var newAngle;
@@ -144,7 +173,15 @@ module.exports = {
 
   },
 
-  // TODO: Better than AABB collision
+  /**
+   * Check if this is colliding with another collidable
+   *
+   * Will do 2 phases:
+   * 1. AABB collision
+   * 2. SAT collision
+   *
+   * @return Boolean true if colliding
+   */
   collidingWith: function(collidable) {
 
     // quickest check is for AABB's
