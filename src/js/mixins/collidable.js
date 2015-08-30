@@ -295,48 +295,6 @@ module.exports = {
   },
 
   /**
-   * Get the most up to date AABB.
-   *
-   * @return Object {x, y, w, h}
-   */
-  getAABB: function() {
-
-    var newAngle;
-
-    if (!this._calcTranformed) {
-      return {
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0
-      }
-    }
-
-    var aabb = {
-      x: this._calcAABB.x,
-      y: this._calcAABB.y,
-      w: this._calcAABB.w,
-      h: this._calcAABB.h
-    };
-
-    if (this.isScalable) {
-      aabb.x *= this.scale;
-      aabb.y *= this.scale;
-      aabb.w *= this.scale;
-      aabb.h *= this.scale;
-    }
-
-    // When it's movable, translate the collision bounds
-    if (this.isMovable) {
-      aabb.x += this.x;
-      aabb.y += this.y;
-    }
-
-    return aabb;
-
-  },
-
-  /**
    * Check if this is colliding with another collidable
    *
    * Will do 2 phases:
