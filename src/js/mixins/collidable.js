@@ -2,6 +2,10 @@
 
 var forPairs = require('../utils/for-pairs');
 
+function dot(p1, p2) {
+  return p1.x * p2.x + p1.y * p2.y;;
+}
+
 function normal(p1, p2) {
   return {
     x: p1.y - p2.y,
@@ -12,37 +16,52 @@ function normal(p1, p2) {
 /**
  * Get the bounds rotated by `angle`
  *
- * Will just return `bounds` if `angle` === 0 or not set
+ * Will just return `bounds` if angle, scale, or pos are defaults
  *
  * @param bounds Array of {x, y}
  * @param angle Float Radian angle
+ * @param scale Float Scale of object
+ * @param pos Object {x, y} position of object
  *
  * @return Arrray of {x, y} the rotated bounds
  */
-function calculateRotatedBounds(bounds, angle) {
+function calculateTransformedBounds(bounds, angle, scale, pos) {
 
   var cosA,
       sinA,
+      x,
+      y,
       result = [];
 
-  if (typeof angle === 'undefined' || angle === 0) {
+  if (angle === 0 && scale === 1 && pos.x === 0 && pos.y === 0) {
     return bounds;
   }
 
-  // pre-calculate a couple of math things outside the loop below
-  cosA = Math.cos(angle);
-  sinA = Math.sin(angle);
+  if (angle !== 0) {
+    // pre-calculate a couple of math things outside the loop below
+    cosA = Math.cos(angle);
+    sinA = Math.sin(angle);
+  }
 
   bounds.forEach(function(point) {
 
-    var x,
-        y;
+    x = point.x;
+    y = point.y;
+
+    // scale the point
+    x *= scale;
+    y *= scale;
+
+    x += pos.x;
+    y += pos.y;
 
     // rotate the point
-    result.push({
-      x: point.x * cosA - point.y * sinA,
-      y: point.y * cosA + point.x * sinA
-    });
+    if (angle !== 0) {
+      x = point.x * cosA - point.y * sinA;
+      y = point.y * cosA + point.x * sinA;
+    }
+
+    result.push({x: x, y: y});
 
   });
 
@@ -126,6 +145,34 @@ function AABBCollision(AABB1, AABB2) {
 
 }
 
+function projectOntoAxis(points, axis) {
+
+  // Start with the smallest possible line then grow it to fit later
+  var min = Infinity,
+      max = -Infinity,
+      axisDotPoint;
+
+  points.forEach(function(point) {
+
+    axisDotPoint = dot(axis, point);
+
+    // grow the box to fit this point
+    min = Math.min(axisDotPoint, min);
+    max = Math.max(axisDotPoint, max);
+  });
+
+  return {
+    min: min,
+    max: max
+  }
+
+}
+
+function projectionsOverlap(projection1, projection2) {
+  return projection1.max >= projection2.min
+    && projection1.min <= projection2.max;
+}
+
 /**
  * Separating Axis Theorem collision detection
  *
@@ -134,9 +181,24 @@ function AABBCollision(AABB1, AABB2) {
  *
  * @return Boolean true if colliding
  */
-function SATCollision(bounds1, bounds2) {
-  // TODO
-  return true;
+function SATCollision(bounds1, normals1, bounds2, normals2) {
+
+  var projection1,
+      projection2;
+
+  return normals1
+    // join the two sets of normals together
+    .concat(normals2)
+    // short-circuit the loop if a separation is found
+    .every(function(normal) {
+
+      projection1 = projectOntoAxis(bounds1, normal);
+      projection2 = projectOntoAxis(bounds2, normal);
+
+      return projectionsOverlap(projection1, projection2);
+
+    });
+
 }
 
 module.exports = {
@@ -153,6 +215,7 @@ module.exports = {
 
     this.clearStaleCollisionData();
     this.updateAllCollisionData();
+
   },
 
   updateAllCollisionData: function() {
@@ -163,11 +226,16 @@ module.exports = {
 
   updateCommonCollisionData: function() {
 
-    if (this._calcRotated) {
+    if (this._calcTransformed) {
       return;
     }
 
-    this._calcRotated = calculateRotatedBounds(this.bounds, this._collisionAngleCache);
+    this._calcTransformed = calculateTransformedBounds(
+      this.bounds,
+      this._collisionAngleCache,
+      this._collisionScaleCache,
+      this._collisionPosCache
+    );
   },
 
   updateAABBCollisionData: function() {
@@ -176,7 +244,7 @@ module.exports = {
       return;
     }
 
-    this._calcAABB = calculateAABB(this._calcRotated);
+    this._calcAABB = calculateAABB(this._calcTransformed);
   },
 
   updateSATCollisionData: function() {
@@ -185,27 +253,41 @@ module.exports = {
       return;
     }
 
-    this._calcNormals = calculateNormals(this._calcRotated);
+    this._calcNormals = calculateNormals(this._calcTransformed);
   },
 
   clearStaleCollisionData: function() {
 
-    var clearIt = false;
-
     var clearIt = (
       this.isRotatable
-      && this.getRotation() !== this._collisionAngleCache
+      && (
+        this._collisionAngleCache === undefined
+        || this.getRotation() !== this._collisionAngleCache
+      )
     );
 
     clearIt = clearIt || (
       this.isScalable
-      && this.getScale() !== this._collisionScaleCache
+      && (
+        this._collisionScaleCache === undefined
+        || this.getScale() !== this._collisionScaleCache
+      )
+    );
+
+    clearIt = clearIt || (
+      this.isMovable
+      && (
+        this._collisionPosCache === undefined
+        || this.getPos().x !== this._collisionPosCache.x
+        || this.getPos().y !== this._collisionPosCache.y
+      )
     );
 
     if (clearIt) {
-      this._collisionAngleCache = this.isRotatable ? this.getRotation(): 0;
-      this._collisionScaleCache = this.isScalable ? this.getScale(): 1;
-      this._calcRotated = null;
+      this._collisionAngleCache = this.isRotatable ? this.getRotation() : 0;
+      this._collisionScaleCache = this.isScalable ? this.getScale() : 1;
+      this._collisionPosCache = this.isMovable ? this.getPos() : {x: 0, y: 0};
+      this._calcTransformed = null;
       this._calcAABB = null;
       this._calcNormals = null;
     }
@@ -215,15 +297,13 @@ module.exports = {
   /**
    * Get the most up to date AABB.
    *
-   * Will take into account translations
-   *
    * @return Object {x, y, w, h}
    */
   getAABB: function() {
 
     var newAngle;
 
-    if (!this.bounds) {
+    if (!this._calcTranformed) {
       return {
         x: 0,
         y: 0,
@@ -281,7 +361,7 @@ module.exports = {
     collidable.updateAABBCollisionData();
 
     // quickest check is for AABB's
-    if (!AABBCollision(this.getAABB(), collidable.getAABB())) {
+    if (!AABBCollision(this._calcAABB, collidable._calcAABB)) {
       return false;
     }
 
@@ -292,7 +372,7 @@ module.exports = {
     this.updateSATCollisionData();
     collidable.updateSATCollisionData();
 
-    return SATCollision(this.bounds, collidable.bounds);
+    return SATCollision(this.bounds, this._calcNormals, collidable.bounds, collidable._calcNormals);
 
   }
 
