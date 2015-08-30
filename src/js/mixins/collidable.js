@@ -1,6 +1,46 @@
 'use strict';
 
 /**
+ * Get the bounds rotated by `angle`
+ *
+ * Will just return `bounds` if `angle` === 0 or not set
+ *
+ * @param bounds Array of {x, y}
+ * @param angle Float Radian angle
+ *
+ * @return Arrray of {x, y} the rotated bounds
+ */
+function calculateRotatedBounds(bounds, angle) {
+
+  var cosA,
+      sinA,
+      result = [];
+
+  if (typeof angle === 'undefined' || angle === 0) {
+    return bounds;
+  }
+
+  // pre-calculate a couple of math things outside the loop below
+  cosA = Math.cos(angle);
+  sinA = Math.sin(angle);
+
+  bounds.forEach(function(point) {
+
+    var x,
+        y;
+
+    // rotate the point
+    result.push({
+      x: point.x * cosA - point.y * sinA,
+      y: point.y * cosA + point.x * sinA
+    });
+
+  });
+
+  return result;
+}
+
+/**
  * Axis Aligned Bounding Box
  *
  * ie; The smallest area we can draw an upright rectangle to contain all the
@@ -12,44 +52,24 @@
  * @return Object {x, y, w, h} where; x = left position, y = top position, w =
  * width, and h = height
  */
-function calculateAABB(bounds, angle) {
-
-  var cosA,
-      sinA;
-
-  if (typeof angle === 'undefined') {
-    angle = 0;
-  }
-
-  // pre-calculate a couple of math things outside the loop below
-  if (angle !== 0) {
-    cosA = Math.cos(angle);
-    sinA = Math.sin(angle);
-  }
+function calculateAABB(bounds) {
 
   // Start with the smallest possible box then grow it to fit later
   var min = {
-      x: Infinity,
-      y: Infinity
-    },
-    max = {
-      x: -Infinity,
-      y: -Infinity
-    };
+        x: Infinity,
+        y: Infinity
+      },
+      max = {
+        x: -Infinity,
+        y: -Infinity
+      },
+      x,
+      y;
 
   bounds.forEach(function(point) {
 
-    var x,
-        y;
-
-    // rotate the point
-    if (angle !== 0) {
-      x = point.x * cosA - point.y * sinA;
-      y = point.y * cosA + point.x * sinA;
-    } else {
-      x = point.x;
-      y = point.y;
-    }
+    x = point.x;
+    y = point.y;
 
     // grow the box to fit this point
     min.x = Math.min(x, min.x);
@@ -115,7 +135,8 @@ module.exports = {
       this._collisionAngleCache = this.getRotation();
     }
 
-    this._calcBounds = calculateAABB(this.bounds, this._collisionAngleCache);
+    this._calcRotated = calculateRotatedBounds(this.bounds, this._collisionAngleCache);
+    this._calcAABB = calculateAABB(this._calcRotated);
   },
 
   /**
@@ -145,15 +166,19 @@ module.exports = {
       if (newAngle !== this._collisionAngleCache) {
         this._collisionAngleCache = newAngle;
         // recalculate boundaries due to new rotation
-        this._calcBounds = calculateAABB(this.bounds, this._collisionAngleCache);
+        this._calcRotated = calculateRotatedBounds(
+          this.bounds,
+          this._collisionAngleCache
+        );
+        this._calcAABB = calculateAABB(this._calcRotated);
       }
     }
 
     var aabb = {
-      x: this._calcBounds.x,
-      y: this._calcBounds.y,
-      w: this._calcBounds.w,
-      h: this._calcBounds.h
+      x: this._calcAABB.x,
+      y: this._calcAABB.y,
+      w: this._calcAABB.w,
+      h: this._calcAABB.h
     };
 
     if (this.isScalable) {
