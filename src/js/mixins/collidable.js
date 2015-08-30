@@ -63,6 +63,19 @@ function AABBCollision(AABB1, AABB2) {
 
 }
 
+/**
+ * Separating Axis Theorem collision detection
+ *
+ * @param bounds1 Array of {x, y} points
+ * @param bounds2 Array of {x, y} points
+ *
+ * @return Boolean true if colliding
+ */
+function SATCollision(bounds1, bounds2) {
+  // TODO
+  return true;
+}
+
 module.exports = {
 
   isCollidable: true,
@@ -139,7 +152,7 @@ module.exports = {
       return false;
     }
 
-    return true;
+    return SATCollision(this.bounds, collidable.bounds);
 
   }
 
