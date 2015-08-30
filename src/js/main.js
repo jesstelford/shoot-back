@@ -176,7 +176,7 @@ function loop() {
   camera.setTransformations(ctx, true);
 
   forOf(bullets, function(bullet) {
-    if (player2.collidingWith(bullet)) {
+    if (player2.collidingWith(bullet, true)) {
       player2.setColour('red');
       return false;
     } else {
@@ -185,7 +185,7 @@ function loop() {
   });
 
   forOf(obstaclesLive, function(obstacle) {
-    if (player.collidingWith(obstacle)) {
+    if (player.collidingWith(obstacle, true)) {
       player.setColour('red');
       return false;
     } else {
