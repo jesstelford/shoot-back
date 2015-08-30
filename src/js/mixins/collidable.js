@@ -3,13 +3,13 @@
 var forPairs = require('../utils/for-pairs');
 
 function dot(p1, p2) {
-  return p1.x * p2.x + p1.y * p2.y;;
+  return p1.x * p2.x + p1.y * p2.y;
 }
 
 function normal(p1, p2) {
   return {
-    x: p1.y - p2.y,
-    y: p2.x - p1.x
+    x: p2.y - p1.y,
+    y: -(p2.x - p1.x)
   }
 }
 
@@ -330,7 +330,7 @@ module.exports = {
     this.updateSATCollisionData();
     collidable.updateSATCollisionData();
 
-    return SATCollision(this.bounds, this._calcNormals, collidable.bounds, collidable._calcNormals);
+    return SATCollision(this._calcTransformed, this._calcNormals, collidable._calcTransformed, collidable._calcNormals);
 
   }
 
