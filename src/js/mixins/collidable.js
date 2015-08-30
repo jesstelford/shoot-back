@@ -48,18 +48,18 @@ function calculateTransformedBounds(bounds, angle, scale, pos) {
     x = point.x;
     y = point.y;
 
+    // rotate the point
+    if (angle !== 0) {
+      x = point.x * cosA - point.y * sinA;
+      y = point.y * cosA + point.x * sinA;
+    }
+
     // scale the point
     x *= scale;
     y *= scale;
 
     x += pos.x;
     y += pos.y;
-
-    // rotate the point
-    if (angle !== 0) {
-      x = point.x * cosA - point.y * sinA;
-      y = point.y * cosA + point.x * sinA;
-    }
 
     result.push({x: x, y: y});
 
