@@ -1,5 +1,4 @@
-* Collision response
-  * Including a bounce for objects with velocity
+* A collision bounce for objects with velocity
 * Give objects velocity and mass: http://elancev.name/oliver/2D%20polygon.htm
 * Independantly scalable items (x & y)
 * Obstacles at top / bottom randomly generated
