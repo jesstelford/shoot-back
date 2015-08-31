@@ -3,6 +3,8 @@
   * Every shot uses up a little bit of that energy
   * Energy automatically recharges over time
   * When energy is zero, no more shots can be fired
+* Generalise the record / replay to support more than just multiple players
+  * Eg; multiple enemies, etc
 * A collision bounce for objects with velocity
 * Give objects velocity and mass: http://elancev.name/oliver/2D%20polygon.htm
 * Independantly scalable items (x & y)
