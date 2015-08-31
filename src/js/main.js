@@ -26,10 +26,13 @@ var canvas = document.querySelector('canvas'),
     playerMoveSpeed = 5,
     bullets = new Set(),
     newBullet = null,
+    gameStartTime = Date.now(),
     elapsedTime = 0,
     targetElapsedTime = 1000 / 60, // 60fps
     playerPos,
     steps,
+    isRecording = true,
+    keysRecord = [],
     collisionResponse;
 
 // Key states:
@@ -48,17 +51,73 @@ function isKeyHeld(key) {
   return keyState[key] === 2;
 }
 
-function keydown(event) {
-  event.preventDefault();
-  if (!keyState[event.keyCode]) {
-    keyState[event.keyCode] = 1;
+function handleKeyDown(keyCode) {
+  if (!keyState[keyCode]) {
+    keyState[keyCode] = 1;
   }
+}
+
+function handleKeyUp(keyCode) {
+  delete keyState[keyCode];
+}
+
+function startReplay() {
+
+  // reset everything
+  resetGame();
+
+  // restart the game time
+  gameStartTime = Date.now();
+
+  console.log('Replaying ' + keysRecord.length + ' input events');
+}
+
+function triggerReplay() {
+
+  isRecording = false;
+
+  // start the replay
+  startReplay();
+
+}
+
+function keydown(event) {
+
+  event.preventDefault();
+
+  if (event.keyCode == 27) {
+    triggerReplay();
+  }
+
+  if (isRecording) {
+
+    handleKeyDown(event.keyCode);
+
+    keysRecord.push({
+      type: 'keydown',
+      keyCode: event.keyCode,
+      when: Date.now() - gameStartTime
+    })
+  }
+
   return false;
 }
 
 function keyup(event) {
+
   event.preventDefault();
-  delete keyState[event.keyCode];
+
+  if (isRecording) {
+
+    handleKeyUp(event.keyCode);
+
+    keysRecord.push({
+      type: 'keyup',
+      keyCode: event.keyCode,
+      when: Date.now() - gameStartTime
+    })
+  }
+
   return false;
 }
 
@@ -81,12 +140,31 @@ function resizeCanvas() {
   }
 }
 
-function init() {
+function resetGame() {
 
   var i,
       obstacle;
 
-  resizeCanvas();
+  // Clean up reusable game objects
+  forOf(bullets, function(bullet) {
+    bulletCache.put(bullet);
+  });
+
+  bullets.clear();
+
+  forOf(bullets, function(bullet) {
+    bulletCache.put(bullet);
+  });
+
+  forOf(obstaclesLive, function(obstacle) {
+    obstacles.put(obstacle);
+  });
+
+  obstaclesLive.clear();
+
+  // Setup the live game objects
+  camera.moveTo(0, 0);
+  player.moveTo(50, 50);
   player2.moveTo(300, 200);
 
   for (i = 0; i < 4; i++) {
@@ -101,6 +179,12 @@ function init() {
     obstacle.rotateTo(Math.PI);
     obstaclesLive.put(obstacle);
   }
+}
+
+function init() {
+
+  resizeCanvas();
+  resetGame();
 
   loop();
 }
@@ -131,8 +215,38 @@ function handleBullets(bullets, steps) {
 
 function loop() {
 
-  elapsedTime = framerate.time(Date.now());
+  var now = Date.now(),
+      gameTimeElapsed = now - gameStartTime;
+
+  elapsedTime = framerate.time(now);
   steps = elapsedTime / targetElapsedTime;
+
+  if (!isRecording) {
+    // replay the keys that haven't been played yet
+    keysRecord.filter(function(keyPress) {
+
+      return keyPress.when < gameTimeElapsed;
+
+    }).forEach(function(keyPress) {
+
+      // replay the input
+      switch (keyPress.type) {
+        case 'keydown':
+          handleKeyDown(keyPress.keyCode);
+          break;
+        case 'keyup':
+          handleKeyUp(keyPress.keyCode);
+          break;
+      }
+    });
+
+    // remove the replayed keys from the array
+    keysRecord = keysRecord.filter(function(keyPress) {
+      return keyPress.when >= gameTimeElapsed;
+    });
+
+  }
+
 
   if (isKeyDown(KEY_UP)) {
     player.move(0, -playerMoveSpeed * steps);
