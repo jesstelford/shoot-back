@@ -65,6 +65,10 @@ module.exports = function(cacheName) {
     size: function() {
       return cache.size;
     },
+
+    clear: function() {
+      return cache.clear();
+    }
   };
 
   /**
