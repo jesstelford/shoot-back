@@ -7,8 +7,6 @@
     * Then Randomly generated variations
       * top / bottom have to have limits so they never overlap (ie; player can
       * still get through)
-* Player death
-* Restartable game
 * Menu / Intro screen (StarWars text scroller with skip button)
   * Drop info in localStorage about intro seen or not
 * Scoring, based on;
@@ -26,6 +24,7 @@
     * One enemey every X ms
     * Then a hard coded sequence (1 x straight, 3 x circle, 5 x straight, etc)
     * Then randomly generated (within bounds)
+  * Player death when collided with a bullet
 * Apply Jerk + Initial acceleration to the movement to give it a smooth-to-stop
   movement
 * Restrict movement of player to within canvas
