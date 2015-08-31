@@ -73,9 +73,6 @@ function startReplay() {
   resetGame();
   createNewCurrentPlayer();
 
-  // restart the game time
-  gameStartTime = Date.now();
-
 }
 
 function playerDeath() {
@@ -97,8 +94,7 @@ function keydown(event) {
 
   keysRecord.get(currentPlayer).push({
     type: 'keydown',
-    keyCode: event.keyCode,
-    when: Date.now() - gameStartTime
+    keyCode: event.keyCode
   })
 
   return false;
@@ -112,19 +108,37 @@ function keyup(event) {
 
   keysRecord.get(currentPlayer).push({
     type: 'keyup',
-    keyCode: event.keyCode,
-    when: Date.now() - gameStartTime
+    keyCode: event.keyCode
   })
 
   return false;
 }
 
 function keysProcessed() {
+  var key;
   // transition to the 'held' state
-  forOf(keyState, function(keyStateForPlayer) {
-    keyStateForPlayer = keyStateForPlayer.map(function() {
-      return 2;
-    });
+  forOf(keyState, function(keyStateMap) {
+    // [1] is the value in the map's for...of iteration
+    for (key in keyStateMap[1]) {
+      keyStateMap[1][key] = 2;
+    };
+  });
+}
+
+function setWhenOnKeypresses(when) {
+
+  keysRecord.get(currentPlayer).forEach(function(keyRecord) {
+    if (typeof keyRecord.whenHandled === 'undefined') {
+      keyRecord.whenHandled = when;
+    }
+  });
+}
+
+function resetKeys() {
+  var key;
+  // reset the state of all the keys (ie; delete 'em all)
+  forOf(keyState, function(keyStateMap) {
+    keyState.set(keyStateMap[0], Object.create(null)); // Wipe out the key states
   });
 }
 
@@ -181,6 +195,11 @@ function resetGame() {
     obstacle.rotateTo(Math.PI);
     obstaclesLive.put(obstacle);
   }
+
+  resetKeys();
+
+  // restart the game time
+  gameStartTime = Date.now();
 }
 
 function createNewCurrentPlayer() {
@@ -195,7 +214,7 @@ function createNewCurrentPlayer() {
   currentPlayer = player;
   playersLive.put(player);
   keysRecord.set(currentPlayer, []);
-  keyState.set(currentPlayer, []);
+  keyState.set(currentPlayer, Object.create(null)); // for...in without .hasOwnProperty
 }
 
 function setupGame() {
@@ -290,13 +309,16 @@ function loop() {
   elapsedTime = framerate.time(now);
   steps = elapsedTime / targetElapsedTime;
 
-    // Don't replay keys currently being recorded for current player
+  setWhenOnKeypresses(gameTimeElapsed);
+
+  // Don't replay keys currently being recorded for current player
   forNotCurrentPlayer(function(player) {
 
     // replay the keys that haven't been played yet
     keysRecord.get(player).filter(function(keyPress) {
 
-      return keyPress.when >= gameTimeElapsed - elapsedTime && keyPress.when < gameTimeElapsed;
+      return keyPress.whenHandled >= gameTimeElapsed - elapsedTime
+        && keyPress.whenHandled < gameTimeElapsed;
 
     }).forEach(function(keyPress) {
 
