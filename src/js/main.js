@@ -11,6 +11,8 @@ var getPlayer = require('./player'),
 var canvas = document.querySelector('canvas'),
     bulletCache = cacheGenerator('bullets'),
     obstaclesLive = cacheGenerator('obstacles:live'),
+    players = cacheGenerator('players'),
+    playersLive = cacheGenerator('players:live'),
     ctx = canvas.getContext('2d'),
     KEY_PAGE_UP = 34,
     KEY_PAGE_DOWN = 33,
@@ -19,10 +21,10 @@ var canvas = document.querySelector('canvas'),
     KEY_RIGHT = 39,
     KEY_DOWN = 40,
     KEY_SPACE = 32,
-    keyState = Object.create(null), // for...in without .hasOwnProperty
+    keyState = new Map(),
+    keysRecord = new Map(),
     camera,
-    player = getPlayer(),
-    player2 = getPlayer(),
+    currentPlayer,
     playerMoveSpeed = 5,
     bullets = new Set(),
     newBullet = null,
@@ -31,50 +33,52 @@ var canvas = document.querySelector('canvas'),
     targetElapsedTime = 1000 / 60, // 60fps
     playerPos,
     steps,
-    isRecording = true,
-    keysRecord = [],
     collisionResponse;
 
 // Key states:
 // undefined === up
 // 1 === just pressed
 // 2 === held
-function isKeyDown(key) {
-  return !!keyState[key];
+function isKeyDown(key, player) {
+  return (keyState.has(player) && !!keyState.get(player)[key]);
 }
 
-function isKeyPressed(key) {
-  return keyState[key] === 1;
+function isKeyPressed(key, player) {
+  return (keyState.has(player) && keyState.get(player)[key] === 1);
 }
 
-function isKeyHeld(key) {
-  return keyState[key] === 2;
+function isKeyHeld(key, player) {
+  return (keyState.has(player) && keyState.get(player)[key] === 2);
 }
 
-function handleKeyDown(keyCode) {
-  if (!keyState[keyCode]) {
-    keyState[keyCode] = 1;
+function handleKeyDown(keyCode, player) {
+
+  var keyStateForPlayer = keyState.get(player);
+
+  if (!keyStateForPlayer[keyCode]) {
+    keyStateForPlayer[keyCode] = 1;
   }
 }
 
-function handleKeyUp(keyCode) {
-  delete keyState[keyCode];
+function handleKeyUp(keyCode, player) {
+
+  var keyStateForPlayer = keyState.get(player);
+  delete keyStateForPlayer[keyCode];
+
 }
 
 function startReplay() {
 
   // reset everything
   resetGame();
+  createNewCurrentPlayer();
 
   // restart the game time
   gameStartTime = Date.now();
 
-  console.log('Replaying ' + keysRecord.length + ' input events');
 }
 
-function triggerReplay() {
-
-  isRecording = false;
+function playerDeath() {
 
   // start the replay
   startReplay();
@@ -86,19 +90,16 @@ function keydown(event) {
   event.preventDefault();
 
   if (event.keyCode == 27) {
-    triggerReplay();
+    playerDeath();
   }
 
-  if (isRecording) {
+  handleKeyDown(event.keyCode, currentPlayer);
 
-    handleKeyDown(event.keyCode);
-
-    keysRecord.push({
-      type: 'keydown',
-      keyCode: event.keyCode,
-      when: Date.now() - gameStartTime
-    })
-  }
+  keysRecord.get(currentPlayer).push({
+    type: 'keydown',
+    keyCode: event.keyCode,
+    when: Date.now() - gameStartTime
+  })
 
   return false;
 }
@@ -107,25 +108,24 @@ function keyup(event) {
 
   event.preventDefault();
 
-  if (isRecording) {
+  handleKeyUp(event.keyCode, currentPlayer);
 
-    handleKeyUp(event.keyCode);
-
-    keysRecord.push({
-      type: 'keyup',
-      keyCode: event.keyCode,
-      when: Date.now() - gameStartTime
-    })
-  }
+  keysRecord.get(currentPlayer).push({
+    type: 'keyup',
+    keyCode: event.keyCode,
+    when: Date.now() - gameStartTime
+  })
 
   return false;
 }
 
 function keysProcessed() {
   // transition to the 'held' state
-  for (var key in keyState) {
-    keyState[key] = 2;
-  }
+  forOf(keyState, function(keyStateForPlayer) {
+    keyStateForPlayer = keyStateForPlayer.map(function() {
+      return 2;
+    });
+  });
 }
 
 function resizeCanvas() {
@@ -164,8 +164,10 @@ function resetGame() {
 
   // Setup the live game objects
   camera.moveTo(0, 0);
-  player.moveTo(50, 50);
-  player2.moveTo(300, 200);
+
+  forAllPlayers(function(player) {
+    player.moveTo(50, 50);
+  });
 
   for (i = 0; i < 4; i++) {
     obstacle = obstacles.get(i);
@@ -181,9 +183,29 @@ function resetGame() {
   }
 }
 
+function createNewCurrentPlayer() {
+
+  // Colour replay players differently
+  // TODO: Alpha?
+  if (currentPlayer) {
+    currentPlayer.setColour('#0000bb');
+  }
+
+  var player = getPlayer();
+  currentPlayer = player;
+  playersLive.put(player);
+  keysRecord.set(currentPlayer, []);
+  keyState.set(currentPlayer, []);
+}
+
+function setupGame() {
+  createNewCurrentPlayer();
+}
+
 function init() {
 
   resizeCanvas();
+  setupGame();
   resetGame();
 
   loop();
@@ -213,66 +235,25 @@ function handleBullets(bullets, steps) {
   });
 }
 
-function loop() {
+function handleInput(player) {
 
-  var now = Date.now(),
-      gameTimeElapsed = now - gameStartTime;
-
-  elapsedTime = framerate.time(now);
-  steps = elapsedTime / targetElapsedTime;
-
-  if (!isRecording) {
-    // replay the keys that haven't been played yet
-    keysRecord.filter(function(keyPress) {
-
-      return keyPress.when < gameTimeElapsed;
-
-    }).forEach(function(keyPress) {
-
-      // replay the input
-      switch (keyPress.type) {
-        case 'keydown':
-          handleKeyDown(keyPress.keyCode);
-          break;
-        case 'keyup':
-          handleKeyUp(keyPress.keyCode);
-          break;
-      }
-    });
-
-    // remove the replayed keys from the array
-    keysRecord = keysRecord.filter(function(keyPress) {
-      return keyPress.when >= gameTimeElapsed;
-    });
-
-  }
-
-
-  if (isKeyDown(KEY_UP)) {
+  if (isKeyDown(KEY_UP, player)) {
     player.move(0, -playerMoveSpeed * steps);
   }
 
-  if (isKeyDown(KEY_DOWN)) {
+  if (isKeyDown(KEY_DOWN, player)) {
     player.move(0, playerMoveSpeed * steps);
   }
 
-  if (isKeyDown(KEY_LEFT)) {
+  if (isKeyDown(KEY_LEFT, player)) {
     player.move(-playerMoveSpeed * steps, 0);
   }
 
-  if (isKeyDown(KEY_RIGHT)) {
+  if (isKeyDown(KEY_RIGHT, player)) {
     player.move(playerMoveSpeed * steps, 0);
   }
 
-  if (isKeyDown(KEY_PAGE_UP)) {
-    player.setColour('red');
-  }
-
-  if (isKeyDown(KEY_PAGE_DOWN)) {
-    player.setColour('green');
-  }
-
-  if (isKeyPressed(KEY_SPACE)) {
+  if (isKeyPressed(KEY_SPACE, player)) {
 
     newBullet = bulletCache.get(getBullet);
 
@@ -283,6 +264,74 @@ function loop() {
 
     bullets.add(newBullet);
   }
+}
+
+function forNotCurrentPlayer(cb) {
+
+  forOf(playersLive, function(player) {
+
+    if (player !== currentPlayer) {
+      cb(player);
+    }
+
+  });
+
+}
+
+function forAllPlayers(cb) {
+  forOf(playersLive, cb);
+}
+
+function loop() {
+
+  var now = Date.now(),
+      gameTimeElapsed = now - gameStartTime;
+
+  elapsedTime = framerate.time(now);
+  steps = elapsedTime / targetElapsedTime;
+
+    // Don't replay keys currently being recorded for current player
+  forNotCurrentPlayer(function(player) {
+
+    // replay the keys that haven't been played yet
+    keysRecord.get(player).filter(function(keyPress) {
+
+      return keyPress.when >= gameTimeElapsed - elapsedTime && keyPress.when < gameTimeElapsed;
+
+    }).forEach(function(keyPress) {
+
+      // replay the input
+      switch (keyPress.type) {
+        case 'keydown':
+          handleKeyDown(keyPress.keyCode, player);
+          break;
+        case 'keyup':
+          handleKeyUp(keyPress.keyCode, player);
+          break;
+      }
+    });
+
+  });
+
+  forAllPlayers(function(player) {
+
+    handleInput(player);
+
+    forOf(obstaclesLive, function(obstacle) {
+
+      collisionResponse = player.collidingWith(obstacle, true, true);
+
+      if (collisionResponse) {
+        // Shift the player back along the collision response vector
+        player.move(-collisionResponse.x, -collisionResponse.y);
+      }
+    });
+
+  });
+
+  // check for bullet collisions
+  forOf(bullets, function(bullet) {
+  });
 
   camera.move(1, 0);
 
@@ -290,33 +339,12 @@ function loop() {
 
   camera.setTransformations(ctx, true);
 
-  forOf(bullets, function(bullet) {
-    if (player2.collidingWith(bullet, true)) {
-      player2.setColour('red');
-      return false;
-    } else {
-      player2.setColour('blue');
-    }
-  });
-
-  forOf(obstaclesLive, function(obstacle) {
-
-    collisionResponse = player.collidingWith(obstacle, true, true);
-
-    if (collisionResponse) {
-      // Shift the player back along the collision response vector
-      player.move(-collisionResponse.x, -collisionResponse.y);
-    }
-  });
-
   // only render when on screen
-  if (player.collidingWith(camera, false)) {
-    player.render(ctx);
-  }
-
-  if (player2.collidingWith(camera, false)) {
-    player2.render(ctx);
-  }
+  forOf(playersLive, function(player) {
+    if (player.collidingWith(camera, false)) {
+      player.render(ctx);
+    }
+  });
 
   // Don't need to check if on camera since we've manually placed them
   forOf(obstaclesLive, function(obstacle) {
