@@ -8,6 +8,7 @@ var getEnemy = require('./enemy'),
     cacheGenerator = require('./cache-generator'),
     inputGenerator = require('./input-generator'),
     obstacles = require('./obstacles'),
+    enemies = require('./enemies'),
     random = require('./random'),
     forOf = require('./utils/for-of');
 
@@ -16,7 +17,6 @@ var canvas = document.querySelector('canvas'),
     obstaclesLive = cacheGenerator('obstacles:live'),
     players = cacheGenerator('players'),
     playersLive = cacheGenerator('players:live'),
-    enemies = cacheGenerator('enemies'),
     enemiesLive = cacheGenerator('enemies:live'),
     ctx = canvas.getContext('2d'),
     KEY_PAGE_UP = 34,
@@ -185,7 +185,7 @@ function createNewCurrentPlayer() {
 }
 
 function createNewInitialEnemy() {
-  var enemy = getEnemy();
+  var enemy = enemies.get();
   enemy.moveTo(canvas.width, random.betweenInts(0, canvas.height));
   enemiesLive.put(enemy);
 }

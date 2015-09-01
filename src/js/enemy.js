@@ -10,9 +10,27 @@ var movable = require('./mixins/movable'),
     transformer = require('./mixins/transformer'),
     objectAssign = require('object-assign');
 
-var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4');
+/**
+ * @param opts Object with keys
+ *             - path: a 2DPath instance to stroke
+ *             - collision: An array of {x, y} points making a convex collision
+ *             hull
+ *             - type: [optional] A unique type identifier. Default: undefined
+ *             - pos: [optional] {x, y} position. Default: {x: 0, y: 0}
+ *             - colour: [optional]. Default: 'red'
+ *             - scale: [optional]. Default: 1
+ *             - lineWidth: [optional]. Default: 3
+ *
+ * @return Object the enemy
+ */
+module.exports = function getEnemy(opts) {
 
-module.exports = function getEnemy() {
+  // Throw warning in dev mode
+  if (process.env.NODE_ENV !== 'production') {
+    if (!opts.path || !opts.collision) {
+      throw new Error('Must supply a path and collision hull');
+    }
+  }
 
   var enemy = objectAssign(
     {},
@@ -26,17 +44,26 @@ module.exports = function getEnemy() {
     transformer
   );
 
-  enemy.moveTo(0, 0);
-  enemy.setColour('#ffff00');
-  enemy.setScale(1);
-  enemy.setLineWidth(3);
-  enemy.rotateTo(Math.PI);
-  enemy.setPath(path);
-  enemy.setCollisionBounds([
-    {x: -10.5, y: -4.5},
-    {x: 10.5, y: 0.5},
-    {x: -10.5, y: 4.5}
-  ]);
+  var options = objectAssign({}, {
+    pos: {x: 0, y: 0},
+    colour: 'yellow',
+    scale: 1,
+    lineWidth: 3,
+    rotation: 0
+  }, opts);
+
+  if (typeof options.type !== 'undefined') {
+    enemy.type = options.type;
+  }
+
+  enemy.setPath(options.path);
+  enemy.setCollisionBounds(options.collision);
+
+  enemy.rotateTo(options.rotation);
+  enemy.moveTo(options.pos.x, options.pos.y);
+  enemy.setColour(options.colour);
+  enemy.setScale(options.scale);
+  enemy.setLineWidth(options.lineWidth);
 
   return enemy;
 };
