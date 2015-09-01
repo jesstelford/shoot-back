@@ -1,11 +1,13 @@
 'use strict';
 
-var getPlayer = require('./player'),
+var getEnemy = require('./enemy'),
+    getPlayer = require('./player'),
     getBullet = require('./bullet'),
     getCamera = require('./camera'),
     framerate = require('./framerate')(60),
     cacheGenerator = require('./cache-generator'),
     obstacles = require('./obstacles'),
+    random = require('./random'),
     forOf = require('./utils/for-of');
 
 var canvas = document.querySelector('canvas'),
@@ -13,6 +15,8 @@ var canvas = document.querySelector('canvas'),
     obstaclesLive = cacheGenerator('obstacles:live'),
     players = cacheGenerator('players'),
     playersLive = cacheGenerator('players:live'),
+    enemies = cacheGenerator('enemies'),
+    enemiesLive = cacheGenerator('enemies:live'),
     ctx = canvas.getContext('2d'),
     KEY_PAGE_UP = 34,
     KEY_PAGE_DOWN = 33,
@@ -217,8 +221,15 @@ function createNewCurrentPlayer() {
   keyState.set(currentPlayer, Object.create(null)); // for...in without .hasOwnProperty
 }
 
+function createNewInitialEnemy() {
+  var enemy = getEnemy();
+  enemy.moveTo(canvas.width, random.betweenInts(0, canvas.height));
+  enemiesLive.put(enemy);
+}
+
 function setupGame() {
   createNewCurrentPlayer();
+  createNewInitialEnemy();
 }
 
 function init() {
@@ -365,6 +376,12 @@ function loop() {
   forOf(playersLive, function(player) {
     if (player.collidingWith(camera, false)) {
       player.render(ctx);
+    }
+  });
+
+  forOf(enemiesLive, function(enemy) {
+    if (enemy.collidingWith(camera, false)) {
+      enemy.render(ctx);
     }
   });
 
