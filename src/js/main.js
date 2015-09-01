@@ -121,10 +121,27 @@ function resizeCanvas() {
   }
 }
 
-function resetGame() {
+function setupObstacles() {
 
   var i,
       obstacle;
+
+  for (i = 0; i < 4; i++) {
+    obstacle = obstacles.get(i);
+    obstacle.moveTo(500 + (i * 250), 10);
+    obstaclesLive.put(obstacle);
+  }
+
+  for (i = 0; i < 4; i++) {
+    obstacle = obstacles.get(i);
+    obstacle.moveTo(500 + (i * 250), canvas.height);
+    obstacle.rotateTo(Math.PI);
+    obstaclesLive.put(obstacle);
+  }
+
+}
+
+function resetGame() {
 
   // Clean up reusable game objects
   forOf(bullets, function(bullet) {
@@ -150,18 +167,7 @@ function resetGame() {
     player.moveTo(50, 50);
   });
 
-  for (i = 0; i < 4; i++) {
-    obstacle = obstacles.get(i);
-    obstacle.moveTo(500 + (i * 250), 10);
-    obstaclesLive.put(obstacle);
-  }
-
-  for (i = 0; i < 4; i++) {
-    obstacle = obstacles.get(i);
-    obstacle.moveTo(500 + (i * 250), canvas.height);
-    obstacle.rotateTo(Math.PI);
-    obstaclesLive.put(obstacle);
-  }
+  setupObstacles();
 
   resetKeys();
 
