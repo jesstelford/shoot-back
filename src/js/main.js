@@ -6,6 +6,7 @@ var getEnemy = require('./enemy'),
     getCamera = require('./camera'),
     framerate = require('./framerate')(60),
     cacheGenerator = require('./cache-generator'),
+    inputGenerator = require('./input-generator'),
     obstacles = require('./obstacles'),
     random = require('./random'),
     forOf = require('./utils/for-of');
@@ -39,38 +40,6 @@ var canvas = document.querySelector('canvas'),
     steps,
     collisionResponse;
 
-// Key states:
-// undefined === up
-// 1 === just pressed
-// 2 === held
-function isKeyDown(key, player) {
-  return (keyState.has(player) && !!keyState.get(player)[key]);
-}
-
-function isKeyPressed(key, player) {
-  return (keyState.has(player) && keyState.get(player)[key] === 1);
-}
-
-function isKeyHeld(key, player) {
-  return (keyState.has(player) && keyState.get(player)[key] === 2);
-}
-
-function handleKeyDown(keyCode, player) {
-
-  var keyStateForPlayer = keyState.get(player);
-
-  if (!keyStateForPlayer[keyCode]) {
-    keyStateForPlayer[keyCode] = 1;
-  }
-}
-
-function handleKeyUp(keyCode, player) {
-
-  var keyStateForPlayer = keyState.get(player);
-  delete keyStateForPlayer[keyCode];
-
-}
-
 function startReplay() {
 
   // reset everything
@@ -94,7 +63,7 @@ function keydown(event) {
     playerDeath();
   }
 
-  handleKeyDown(event.keyCode, currentPlayer);
+  keyState.get(currentPlayer).handleKeyDown(event.keyCode);
 
   keysRecord.get(currentPlayer).push({
     type: 'keydown',
@@ -108,7 +77,7 @@ function keyup(event) {
 
   event.preventDefault();
 
-  handleKeyUp(event.keyCode, currentPlayer);
+  keyState.get(currentPlayer).handleKeyUp(event.keyCode);
 
   keysRecord.get(currentPlayer).push({
     type: 'keyup',
@@ -119,13 +88,8 @@ function keyup(event) {
 }
 
 function keysProcessed() {
-  var key;
-  // transition to the 'held' state
   forOf(keyState, function(keyStateMap) {
-    // [1] is the value in the map's for...of iteration
-    for (key in keyStateMap[1]) {
-      keyStateMap[1][key] = 2;
-    };
+    keyStateMap[1].markDownAsHeld()
   });
 }
 
@@ -139,10 +103,9 @@ function setWhenOnKeypresses(when) {
 }
 
 function resetKeys() {
-  var key;
   // reset the state of all the keys (ie; delete 'em all)
   forOf(keyState, function(keyStateMap) {
-    keyState.set(keyStateMap[0], Object.create(null)); // Wipe out the key states
+    keyStateMap[1].reset();
   });
 }
 
@@ -218,7 +181,7 @@ function createNewCurrentPlayer() {
   currentPlayer = player;
   playersLive.put(player);
   keysRecord.set(currentPlayer, []);
-  keyState.set(currentPlayer, Object.create(null)); // for...in without .hasOwnProperty
+  keyState.set(currentPlayer, inputGenerator());
 }
 
 function createNewInitialEnemy() {
@@ -267,23 +230,25 @@ function handleBullets(bullets, steps) {
 
 function handleInput(player) {
 
-  if (isKeyDown(KEY_UP, player)) {
+  var keyStateForPlayer = keyState.get(player);
+
+  if (keyStateForPlayer.isKeyDown(KEY_UP)) {
     player.move(0, -playerMoveSpeed * steps);
   }
 
-  if (isKeyDown(KEY_DOWN, player)) {
+  if (keyStateForPlayer.isKeyDown(KEY_DOWN)) {
     player.move(0, playerMoveSpeed * steps);
   }
 
-  if (isKeyDown(KEY_LEFT, player)) {
+  if (keyStateForPlayer.isKeyDown(KEY_LEFT)) {
     player.move(-playerMoveSpeed * steps, 0);
   }
 
-  if (isKeyDown(KEY_RIGHT, player)) {
+  if (keyStateForPlayer.isKeyDown(KEY_RIGHT)) {
     player.move(playerMoveSpeed * steps, 0);
   }
 
-  if (isKeyPressed(KEY_SPACE, player)) {
+  if (keyStateForPlayer.isKeyPressed(KEY_SPACE)) {
 
     newBullet = bulletCache.get(getBullet);
 
@@ -325,6 +290,8 @@ function loop() {
   // Don't replay keys currently being recorded for current player
   forNotCurrentPlayer(function(player) {
 
+    var keyStateForPlayer = keyState.get(player);
+
     // replay the keys that haven't been played yet
     keysRecord.get(player).filter(function(keyPress) {
 
@@ -336,10 +303,10 @@ function loop() {
       // replay the input
       switch (keyPress.type) {
         case 'keydown':
-          handleKeyDown(keyPress.keyCode, player);
+          keyStateForPlayer.handleKeyDown(keyPress.keyCode);
           break;
         case 'keyup':
-          handleKeyUp(keyPress.keyCode, player);
+          keyStateForPlayer.handleKeyUp(keyPress.keyCode);
           break;
       }
     });
