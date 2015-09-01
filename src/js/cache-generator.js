@@ -38,6 +38,7 @@ module.exports = function(cacheName) {
       var result;
 
       if (typeof selector !== 'function') {
+        // when no selector set, always grab the first in the cache
         selector = function(cacheToSelectFrom) {
           return cache.values().next().value;
         }

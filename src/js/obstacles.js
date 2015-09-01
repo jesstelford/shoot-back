@@ -53,7 +53,7 @@ var types = [
   }
 ];
 
-module.exports = {
+var obstacles = {
 
   get: function(type) {
 
@@ -65,11 +65,11 @@ module.exports = {
 
       // custom construction function to set the type
       function() {
-        var obstacle = getObstacle();
-        obstacle.type = type;
-        obstacle.setPath(types[type].path);
-        obstacle.setCollisionBounds(types[type].collision);
-        return obstacle;
+        return getObstacle({
+          type: type,
+          path: types[type].path,
+          collision: types[type].collision
+        });
       },
 
       // we're looking for a particular type
@@ -96,3 +96,14 @@ module.exports = {
   }
 
 }
+
+/**
+ * Allow iteration of the cache values using ES6 Iterators
+ *
+ * @return Iterable
+ */
+obstacles[Symbol.iterator] = function() {
+  return cache[Symbol.iterator]();
+}
+
+module.exports = obstacles;

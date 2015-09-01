@@ -10,7 +10,27 @@ var movable = require('./mixins/movable'),
     transformer = require('./mixins/transformer'),
     objectAssign = require('object-assign');
 
-module.exports = function getObstacle() {
+/**
+ * @param opts Object with keys
+ *             - path: a 2DPath instance to stroke
+ *             - collision: An array of {x, y} points making a convex collision
+ *             hull
+ *             - type: [optional] A unique type identifier. Default: undefined
+ *             - pos: [optional] {x, y} position. Default: {x: 0, y: 0}
+ *             - colour: [optional]. Default: 'red'
+ *             - scale: [optional]. Default: 1
+ *             - lineWidth: [optional]. Default: 3
+ *
+ * @return Object the obstacle
+ */
+module.exports = function getObstacle(opts) {
+
+  // Throw warning in dev mode
+  if (process.env.NODE_ENV !== 'production') {
+    if (!opts.path || !opts.collision) {
+      throw new Error('Must supply a path and collision hull');
+    }
+  }
 
   var obstacle = objectAssign(
     {},
@@ -24,10 +44,24 @@ module.exports = function getObstacle() {
     transformer
   );
 
-  obstacle.moveTo(500, 30);
-  obstacle.setColour('red');
-  obstacle.setScale(1);
-  obstacle.setLineWidth(3);
+  var options = objectAssign({}, {
+    pos: {x: 0, y: 0},
+    colour: 'red',
+    scale: 1,
+    lineWidth: 3
+  }, opts);
+
+  if (typeof options.type !== 'undefined') {
+    obstacle.type = options.type;
+  }
+
+  obstacle.setPath(options.path);
+  obstacle.setCollisionBounds(options.collision);
+
+  obstacle.moveTo(options.pos.x, options.pos.y);
+  obstacle.setColour(options.colour);
+  obstacle.setScale(options.scale);
+  obstacle.setLineWidth(options.lineWidth);
 
   return obstacle;
 };
