@@ -14,7 +14,49 @@ var types = [
       {x: 10.5, y: 0.5},
       {x: -10.5, y: 4.5}
     ],
-    rotation: Math.PI
+    rotation: Math.PI,
+    keyframes: [
+      {
+        when: 1000,
+        func: 'move',
+        params: function() { return [0, 20] },
+        loopFor: 0
+      },
+      {
+        when: 0,
+        func: 'move',
+        params: function(elapsedTime) { return [-1, 0] },
+        loopFor: 4000 // loop for 10ms. if < 0, loop forever. if 0, no loop
+      },
+      {
+        when: 0,
+        func: 'rotate',
+        params: function(elapsedTime) { return [0.1] },
+        loopFor: 4000 // loop for 10ms. if < 0, loop forever. if 0, no loop
+      },
+      {
+        when: 0,
+        func: 'setColour',
+        params: (function() {
+          var colour = 0;
+          var change = 1;
+          return function(elapsedTime) {
+            var result = 'rgb(' + colour + ',' + colour + ',' + colour + ')';
+            colour += change;
+            if (colour > 255) {
+              change = -1;
+              colour = 254;
+            }
+            if (colour < 0) {
+              change = 1;
+              colour = 1;
+            }
+            return [result];
+          }
+        })(),
+        loopFor: -1
+      }
+    ]
   }
 ];
 
