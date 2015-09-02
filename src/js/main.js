@@ -160,6 +160,10 @@ function resetGame() {
 
   obstaclesLive.clear();
 
+  forOf(enemiesLive, function(enemy) {
+    enemy.resetKeyframes();
+  });
+
   // Setup the live game objects
   camera.moveTo(0, 0);
 
