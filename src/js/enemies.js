@@ -37,23 +37,25 @@ var types = [
       {
         when: 0,
         func: 'setColour',
-        params: (function() {
-          var colour = 0;
-          var change = 1;
-          return function(elapsedTime) {
-            var result = 'rgb(' + colour + ',' + colour + ',' + colour + ')';
-            colour += change;
-            if (colour > 255) {
-              change = -1;
-              colour = 254;
-            }
-            if (colour < 0) {
-              change = 1;
-              colour = 1;
-            }
-            return [result];
+        params: function(elapsedTime, state) {
+
+          state.colour = state.colour || 0;
+          state.change = state.change || 1;
+
+          var result = 'rgb(' + state.colour + ',' + state.colour + ',' + state.colour + ')';
+
+          state.colour += state.change;
+
+          if (state.colour > 255) {
+            state.change = -1;
+            state.colour = 254;
           }
-        })(),
+          if (state.colour < 0) {
+            state.change = 1;
+            state.colour = 1;
+          }
+          return [result];
+        },
         loopFor: -1
       }
     ]

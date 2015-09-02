@@ -52,7 +52,8 @@ module.exports = {
 
       var frameState = self._keyframeState[index],
           elapsedTimeForFrame,
-          loopUntil;
+          loopUntil,
+          params;
 
       if (
         // skip this keyframe, it's not applicable anymore
@@ -62,6 +63,9 @@ module.exports = {
       ) {
         return;
       }
+
+      // Setup state for the keyframe functions
+      frameState[frame.func] = frameState[frame.func] || {};
 
       elapsedTimeForFrame = elapsedTime;
       loopUntil = frame.when + frame.loopFor;
@@ -76,8 +80,11 @@ module.exports = {
         } // else: it's in the middle of a loop
       } // else: loop forever
 
+      // Calculate the params to pass to the function
+      params = frame.params.call(self, elapsedTime, frameState[frame.func]);
+
       // Call the keyframe update function
-      self[frame.func].apply(self, frame.params.call(self, elapsedTime));
+      self[frame.func].apply(self, params);
     })
 
     this._keyframeElapsedTime += elapsedTime;
