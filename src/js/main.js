@@ -162,6 +162,7 @@ function resetGame() {
 
   forOf(enemiesLive, function(enemy) {
     enemy.resetKeyframes();
+    enemies.put(enemy);
   });
 
   // Setup the live game objects
@@ -171,6 +172,7 @@ function resetGame() {
     player.moveTo(50, 50);
   });
 
+  setupEnemies();
   setupObstacles();
 
   resetKeys();
@@ -194,7 +196,7 @@ function createNewCurrentPlayer() {
   keyState.set(currentPlayer, inputGenerator());
 }
 
-function createNewInitialEnemy() {
+function setupEnemies() {
   var enemy = enemies.get();
   enemy.moveTo(canvas.width, random.betweenInts(0, canvas.height));
   enemiesLive.put(enemy);
@@ -202,7 +204,6 @@ function createNewInitialEnemy() {
 
 function setupGame() {
   createNewCurrentPlayer();
-  createNewInitialEnemy();
 }
 
 function init() {
