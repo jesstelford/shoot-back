@@ -17,46 +17,45 @@ var types = [
     rotation: Math.PI,
     keyframes: [
       {
-        when: 1000,
-        func: 'move',
-        params: function() { return [0, 20] },
-        loopFor: 0
-      },
-      {
         when: 0,
         func: 'move',
-        params: function(elapsedTime) { return [-1, 0] },
-        loopFor: 4000 // loop for 10ms. if < 0, loop forever. if 0, no loop
-      },
-      {
-        when: 0,
-        func: 'rotate',
-        params: function(elapsedTime) { return [0.1] },
-        loopFor: 4000 // loop for 10ms. if < 0, loop forever. if 0, no loop
-      },
-      {
-        when: 0,
-        func: 'setColour',
-        params: function(elapsedTime, state) {
-
-          state.colour = state.colour || 0;
-          state.change = state.change || 1;
-
-          var result = 'rgb(' + state.colour + ',' + state.colour + ',' + state.colour + ')';
-
-          state.colour += state.change;
-
-          if (state.colour > 255) {
-            state.change = -1;
-            state.colour = 254;
-          }
-          if (state.colour < 0) {
-            state.change = 1;
-            state.colour = 1;
-          }
-          return [result];
+        params: function(elapsedTime) {
+          var step = elapsedTime / (1000 / 60);
+          return [step * -1, 0];
         },
         loopFor: -1
+      },
+      {
+        when: 2000,
+        func: 'move',
+        params: function clockwiseRotate(elapsedTime, state) {
+
+          var step = elapsedTime / (1000 / 60),
+              result,
+              newX,
+              newY;
+
+          state.radius = state.radius || 40;
+
+          // initial position is at the bottom of the circle
+          state.angle = state.angle || Math.PI / 2;
+          state.lastX = state.lastX || 0;
+          state.lastY = state.lastY || state.radius;
+
+          // rotate clockwise
+          state.angle += step * 0.1;
+
+          newX = state.radius * Math.cos(state.angle);
+          newY = state.radius * Math.sin(state.angle);
+
+          result = [newX - state.lastX, newY - state.lastY];
+
+          state.lastX = newX;
+          state.lastY = newY;
+
+          return result;
+        },
+        loopFor: 4000 // loop for 10ms. if < 0, loop forever. if 0, no loop
       }
     ]
   }
