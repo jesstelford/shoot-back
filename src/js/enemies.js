@@ -35,7 +35,7 @@ var types = [
               newX,
               newY;
 
-          state.radius = state.radius || 40;
+          state.radius = state.radius || 80;
 
           // initial position is at the bottom of the circle
           state.angle = state.angle || Math.PI / 2;
@@ -43,7 +43,7 @@ var types = [
           state.lastY = state.lastY || state.radius;
 
           // rotate clockwise
-          state.angle += step * 0.1;
+          state.angle += step * 0.05;
 
           newX = state.radius * Math.cos(state.angle);
           newY = state.radius * Math.sin(state.angle);
