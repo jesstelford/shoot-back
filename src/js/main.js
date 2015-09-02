@@ -335,6 +335,10 @@ function loop() {
 
   });
 
+  forOf(enemiesLive, function(enemy) {
+    enemy.updateKeyFrames(elapsedTime);
+  });
+
   // check for bullet collisions
   forOf(bullets, function(bullet) {
   });

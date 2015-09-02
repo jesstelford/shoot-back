@@ -4,6 +4,7 @@ var movable = require('./mixins/movable'),
     scalable = require('./mixins/scalable'),
     strokable = require('./mixins/strokable'),
     rotatable = require('./mixins/rotatable'),
+    keyframed = require('./mixins/keyframed'),
     colourable = require('./mixins/colourable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
@@ -35,6 +36,7 @@ module.exports = function getEnemy(opts) {
   var enemy = objectAssign(
     {},
     movable,
+    keyframed,
     colourable,
     collidable,
     rotatable,
@@ -49,7 +51,8 @@ module.exports = function getEnemy(opts) {
     colour: 'yellow',
     scale: 1,
     lineWidth: 3,
-    rotation: 0
+    rotation: 0,
+    keyframes: []
   }, opts);
 
   if (typeof options.type !== 'undefined') {
@@ -64,6 +67,7 @@ module.exports = function getEnemy(opts) {
   enemy.setColour(options.colour);
   enemy.setScale(options.scale);
   enemy.setLineWidth(options.lineWidth);
+  enemy.setKeyframes(options.keyframes);
 
   return enemy;
 };
