@@ -4,6 +4,7 @@ var getEnemy = require('./enemy'),
     random = require('./random'),
     cache = require('./cache-generator')('enemies'),
     forOf = require('./utils/for-of'),
+    keyframeCircleClockwise = require('./keyframes/circle-clockwise'),
     objectAssign = require('object-assign');
 
 var types = [
@@ -28,33 +29,7 @@ var types = [
       {
         when: 2000,
         func: 'move',
-        params: function clockwiseRotate(elapsedTime, state) {
-
-          var step = elapsedTime / (1000 / 60),
-              result,
-              newX,
-              newY;
-
-          state.radius = state.radius || 80;
-
-          // initial position is at the bottom of the circle
-          state.angle = state.angle || Math.PI / 2;
-          state.lastX = state.lastX || 0;
-          state.lastY = state.lastY || state.radius;
-
-          // rotate clockwise
-          state.angle += step * 0.05;
-
-          newX = state.radius * Math.cos(state.angle);
-          newY = state.radius * Math.sin(state.angle);
-
-          result = [newX - state.lastX, newY - state.lastY];
-
-          state.lastX = newX;
-          state.lastY = newY;
-
-          return result;
-        },
+        params: keyframeCircleClockwise(80, 0.05),
         loopFor: 4000 // loop for 10ms. if < 0, loop forever. if 0, no loop
       }
     ]
