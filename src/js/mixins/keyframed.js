@@ -13,10 +13,31 @@ function ensureDefaults() {
   }
 }
 
+/**
+ * A keyframe action mixin
+ *
+ * Allows arbitrary execution of methods on the object mixed into. Concurrent
+ * keyframes can execute at any given start time, with limited loops, indefinite
+ * looping, or one-off events.
+ */
 module.exports = {
 
   isKeyframed: true,
 
+  /**
+   * @param keyframes Array list of keyframes and their associated actions. Will
+   * be called with the conxtext of the object mixed into.
+      {
+        when: After how many milliseconds does this keyframe occur?
+        func: What function on `this` is called?
+        params: A function accepting param `elapsedTime` (in ms), returning an
+                array of parameters to apply to func
+        loopFor: How many ms to loop for.
+                 if < 0, loop forever
+                 if 0, never loop
+                 if > 0, loop continuously until that time is reached
+      }
+   */
   setKeyframes: function(keyframes) {
     this.keyframes = keyframes;
   },
