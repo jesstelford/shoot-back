@@ -93,7 +93,6 @@ module.exports = {
   resetKeyframes: function() {
     delete this._keyframeElapsedTime;
     delete this._keyframeState;
-    ensureDefaults.call(this);
   }
 
 };
