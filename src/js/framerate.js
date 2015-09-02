@@ -16,7 +16,11 @@ module.exports = function(averageOver) {
         timeHistory.pop(); // remove the oldest (last)
       }
 
-      return timeHistory[0] - timeHistory[1];
+      if (timeHistory.length <= 1) {
+        return 0;
+      } else {
+        return timeHistory[0] - timeHistory[1];
+      }
 
     },
 
