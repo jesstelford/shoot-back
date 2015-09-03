@@ -165,6 +165,8 @@ function resetGame() {
     enemies.put(enemy);
   });
 
+  enemiesLive.clear();
+
   // Setup the live game objects
   camera.moveTo(0, 0);
 
