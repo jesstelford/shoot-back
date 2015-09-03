@@ -197,9 +197,18 @@ function createNewCurrentPlayer() {
 }
 
 function setupEnemies() {
-  var enemy = enemies.get();
-  enemy.moveTo(canvas.width, random.betweenInts(0, canvas.height));
-  enemiesLive.put(enemy);
+
+  var yPos = random.betweenInts(0, canvas.height);
+
+  for (var i = 0; i < 10; i++) {
+    // TODO: Cancel timeouts if game reset
+    window.setTimeout(function() {
+      var enemy = enemies.get(0);
+      enemy.moveTo(canvas.width, yPos);
+      enemiesLive.put(enemy);
+    }, 400 * i);
+  }
+
 }
 
 function setupGame() {
