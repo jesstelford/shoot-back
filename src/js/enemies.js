@@ -4,7 +4,7 @@ var getEnemy = require('./enemy'),
     random = require('./random'),
     cache = require('./cache-generator')('enemies'),
     forOf = require('./utils/for-of'),
-    keyframeCircleClockwise = require('./keyframes/circle-clockwise'),
+    keyframeCircle = require('./keyframes/circle'),
     objectAssign = require('object-assign');
 
 var types = [
@@ -29,8 +29,14 @@ var types = [
       {
         when: 2000,
         func: 'move',
-        params: keyframeCircleClockwise(80, 0.05),
-        loopFor: 4000 // loop for 10ms. if < 0, loop forever. if 0, no loop
+        params: keyframeCircle(80, -0.05),
+        loopFor: 2000
+      },
+      {
+        when: 4000,
+        func: 'move',
+        params: keyframeCircle(80, 0.05),
+        loopFor: 2000
       }
     ]
   }
