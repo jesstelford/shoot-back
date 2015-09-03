@@ -3,6 +3,7 @@
 var movable = require('./mixins/movable'),
     scalable = require('./mixins/scalable'),
     strokable = require('./mixins/strokable'),
+    energised = require('./mixins/energised'),
     colourable = require('./mixins/colourable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
@@ -20,6 +21,7 @@ module.exports = function getPlayer() {
     collidable,
     scalable,
     strokable,
+    energised,
     renderable,
     transformer
   );
