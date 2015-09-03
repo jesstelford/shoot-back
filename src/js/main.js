@@ -150,10 +150,6 @@ function resetGame() {
 
   bullets.clear();
 
-  forOf(bullets, function(bullet) {
-    bulletCache.put(bullet);
-  });
-
   forOf(obstaclesLive, function(obstacle) {
     obstacles.put(obstacle);
   });
