@@ -1,12 +1,13 @@
 'use strict';
 
-var movable = require('./mixins/movable'),
+var ttl = require('./mixins/ttl'),
+    movable = require('./mixins/movable'),
     scalable = require('./mixins/scalable'),
+    killable = require('./mixins/killable'),
     strokable = require('./mixins/strokable'),
     colourable = require('./mixins/colourable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
-    timerDeath = require('./mixins/timer-death'),
     transformer = require('./mixins/transformer'),
     objectAssign = require('object-assign');
 
@@ -21,9 +22,10 @@ module.exports = function getBullet() {
     colourable,
     collidable,
     scalable,
+    killable(),
     strokable,
     renderable,
-    timerDeath,
+    ttl,
     transformer,
     {
       init: function() {
@@ -33,11 +35,15 @@ module.exports = function getBullet() {
         this.setPath(bulletPath);
         this.setColour('blue');
         this.setTtl(3000);
+        this.birth();
       },
 
       update: function(steps) {
         this.movement(steps);
-        this.updateDeath(steps);
+        this.updateTtl(steps);
+        if (this.getTtl() < 0) {
+          this.die();
+        }
       },
 
       movement: function(steps) {
