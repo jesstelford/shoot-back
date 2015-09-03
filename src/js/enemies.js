@@ -22,9 +22,9 @@ var types = [
         func: 'move',
         params: function(elapsedTime) {
           var step = elapsedTime / (1000 / 60);
-          return [step * -1, 0];
+          return [step * -4, 0];
         },
-        loopFor: -1
+        loopFor: 2000
       },
       {
         when: 2000,
@@ -37,7 +37,16 @@ var types = [
         func: 'move',
         params: keyframeCircle(80, 0.05),
         loopFor: 2000
-      }
+      },
+      {
+        when: 6000,
+        func: 'move',
+        params: function(elapsedTime) {
+          var step = elapsedTime / (1000 / 60);
+          return [step * -4, 0];
+        },
+        loopFor: -1
+      },
     ]
   }
 ];
