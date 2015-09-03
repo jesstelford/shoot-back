@@ -379,6 +379,18 @@ function loop() {
 
   // check for bullet collisions
   forOf(bullets, function(bullet) {
+    forOf(enemiesLive, function(enemy) {
+      if (bullet.collidingWith(enemy)) {
+
+        // kill this bullet
+        bullets.delete(bullet);
+        bulletCache.put(bullet);
+
+        // kill this enemy
+        enemiesLive.delete(enemy);
+        enemies.put(enemy);
+      }
+    });
   });
 
   camera.move(1, 0);
