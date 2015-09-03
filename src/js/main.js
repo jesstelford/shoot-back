@@ -168,6 +168,7 @@ function resetGame() {
 
   forAllPlayers(function(player) {
     player.moveTo(50, 50);
+    player.setEnergy(10);
   });
 
   setupEnemies();
@@ -189,6 +190,7 @@ function createNewCurrentPlayer() {
 
   var player = getPlayer();
   currentPlayer = player;
+  player.setEnergy(10);
   playersLive.put(player);
   keysRecord.set(currentPlayer, []);
   keyState.set(currentPlayer, inputGenerator());
@@ -268,14 +270,25 @@ function handleInput(player) {
 
   if (keyStateForPlayer.isKeyPressed(KEY_SPACE)) {
 
-    newBullet = bulletCache.get(getBullet);
+    // players have a limit to the number of bullets that can be fired
+    if (player.getEnergy() > 0) {
+      newBullet = bulletCache.get(getBullet);
 
-    newBullet.init();
+      newBullet.init();
 
-    playerPos = player.getPos();
-    newBullet.moveTo(playerPos.x, playerPos.y);
+      playerPos = player.getPos();
+      newBullet.moveTo(playerPos.x, playerPos.y);
 
-    bullets.add(newBullet);
+      newBullet.forPlayer = player;
+
+      newBullet.onDeathOnce(function() {
+        player.changeEnergy(1);
+      });
+
+      bullets.add(newBullet);
+
+      player.changeEnergy(-1);
+    }
   }
 }
 
