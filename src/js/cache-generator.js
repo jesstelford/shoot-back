@@ -63,6 +63,10 @@ module.exports = function(cacheName) {
       cache.add(item);
     },
 
+    delete: function(item) {
+      cache.delete(item);
+    },
+
     size: function() {
       return cache.size;
     },
