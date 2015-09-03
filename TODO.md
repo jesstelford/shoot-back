@@ -14,7 +14,21 @@
     * Then Randomly generated variations
       * top / bottom have to have limits so they never overlap (ie; player can
       * still get through)
-* Menu / Intro screen (StarWars text scroller with skip button)
+* Menu / Intro screen
+  * Tutorial level:
+    * Screen 1: "<space> to shoot"
+      * Then an increasingly impossible wave of enemies
+      * Eventually the player will die
+    * Screen 2: "Time Warp Activated!"
+      * Replay
+      * Player will die again
+    * Screen 3: "Final Time Warp!"
+      * Stop the wave generating after the 2nd player death
+      * If player dies again, go to Sreen 4
+      * If player makes it to the end, go to Screen 5
+    * Screen 4: "Let's try again!"
+      * Go to Screen 1
+    * Screen 5: "Mission complete! Ready to try the real thing?"
   * Drop info in localStorage about intro seen or not
 * Scoring, based on;
   * number of kills
@@ -23,15 +37,14 @@
 * Enemies
   * Fire bullets at player(s)
     * Ever X ms
-  * Movement Patterns:
-    * Simple: Straight forward
-    * Circle: Straight for X ms, then rotate in circle
   * Randomly generated enemy types
   * Enemy group sequences
     * One enemey every X ms
     * Then a hard coded sequence (1 x straight, 3 x circle, 5 x straight, etc)
     * Then randomly generated (within bounds)
   * Player death when collided with a bullet
+  * Enemy death causes an "explosion" (a growing circle that fades out).
+    * If player collides with explosion, they die.
 * Apply Jerk + Initial acceleration to the movement to give it a smooth-to-stop
   movement
 * Restrict movement of player to within canvas
