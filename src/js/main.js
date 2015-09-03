@@ -348,7 +348,33 @@ function loop() {
   });
 
   forOf(enemiesLive, function(enemy) {
+
+    // update enemy keyframes
     enemy.updateKeyFrames(elapsedTime);
+
+    // check for player collisions
+    forOf(playersLive, function(player) {
+
+      if (enemy.collidingWith(player)) {
+
+        if (player === currentPlayer) {
+
+          // Current player dying causes a game reset
+          startReplay();
+          return false;
+
+        } else {
+
+          // kill this player
+          playersLive.delete(player);
+          players.put(player);
+
+          // kill this enemy
+          enemiesLive.delete(enemy);
+          enemies.put(enemy);
+        }
+      }
+    });
   });
 
   // check for bullet collisions
