@@ -4,6 +4,7 @@ var getEnemy = require('./enemy'),
     getPlayer = require('./player'),
     getBullet = require('./bullet'),
     getCamera = require('./camera'),
+    getText = require('./text'),
     framerate = require('./framerate')(60),
     cacheGenerator = require('./cache-generator'),
     inputGenerator = require('./input-generator'),
@@ -38,7 +39,8 @@ var canvas = document.querySelector('canvas'),
     targetElapsedTime = 1000 / 60, // 60fps
     playerPos,
     steps,
-    collisionResponse;
+    collisionResponse,
+    scoreText;
 
 function startReplay() {
 
@@ -213,6 +215,7 @@ function setupEnemies() {
 
 function setupGame() {
   createNewCurrentPlayer();
+  scoreText = getText();
 }
 
 function init() {
@@ -406,6 +409,9 @@ function loop() {
     });
   });
 
+  // update keyframes
+  scoreText.updateKeyFrames(elapsedTime);
+
   camera.move(1, 0);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -433,6 +439,9 @@ function loop() {
   handleBullets(bullets, steps);
 
   camera.resetTransformations(ctx);
+
+  // HUD is rendered last (on top), and after camera transorms have been removed
+  scoreText.render(ctx);
 
   keysProcessed();
   requestAnimationFrame(loop);
