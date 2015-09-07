@@ -36,14 +36,16 @@ module.exports = function getText() {
   text.setFontStyle('bold');
   text.setText("Let's play!");
 
-  text.setTextBaseline('bottom');
+  text.setTextBaseline('middle');
   text.setTextAlign('center');
 
   text.setKeyframes([
     {
       when: 500,
-      func: 'setScale',
-      params: pulseKeyframe(1, 2.1, 1000),
+      func: 'setFontSize',
+      params: pulseKeyframe(20, 30, 500, function(params) {
+        return [params[0] + 'pt'];
+      }),
       loopFor: -1
     },
   ]);
