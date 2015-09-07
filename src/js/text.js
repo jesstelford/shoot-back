@@ -8,6 +8,7 @@ var font = require('./mixins/font'),
     colourable = require('./mixins/colourable'),
     renderable = require('./mixins/renderable'),
     transformer = require('./mixins/transformer'),
+    pulseKeyframe = require('./keyframes/pulse'),
     objectAssign = require('object-assign');
 
 var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4');
@@ -35,40 +36,14 @@ module.exports = function getText() {
   text.setFontStyle('bold');
   text.setText("Let's play!");
 
+  text.setTextBaseline('bottom');
+  text.setTextAlign('center');
+
   text.setKeyframes([
     {
       when: 500,
       func: 'setScale',
-      params: function(elapsedTime, state) {
-
-        var scale = this.getScale(),
-            step = elapsedTime / (1000 / 60);
-
-        state.done = state.done || false;
-        state.scaleDirection = state.scaleDirection || 1;
-        state.originalScale = state.originalScale || scale;
-        state.targetScale = state.targetScale || scale * 2; // double in size
-        state.hitTargetScale = state.hitTargetScale || false;
-
-        if (state.done || elapsedTime === 0) {
-          return [scale];
-        }
-
-        scale += step * 0.1 * state.scaleDirection;
-
-        if (scale >= state.targetScale) {
-          state.hitTargetScale = true;
-          state.scaleDirection = -1;
-        }
-
-        if (scale <= state.originalScale && state.hitTargetScale) {
-          scale = state.originalScale;
-          state.done = true;
-        }
-
-        return [scale];
-
-      },
+      params: pulseKeyframe(1, 2.1, 1000),
       loopFor: -1
     },
   ]);
