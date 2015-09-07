@@ -8,7 +8,6 @@ var font = require('./mixins/font'),
     colourable = require('./mixins/colourable'),
     renderable = require('./mixins/renderable'),
     transformer = require('./mixins/transformer'),
-    pulseKeyframe = require('./keyframes/pulse'),
     objectAssign = require('object-assign');
 
 var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4');
@@ -27,6 +26,7 @@ module.exports = function getText() {
     transformer
   );
 
+  // A few sane defaults
   text.moveTo(0, 0);
   text.setColour('white');
   text.setScale(1);
@@ -34,21 +34,10 @@ module.exports = function getText() {
   text.setFont('Sans-Serif');
   text.setFontSize('20pt');
   text.setFontStyle('bold');
-  text.setText("Let's play!");
+  text.setText('[text here]');
 
-  text.setTextBaseline('middle');
-  text.setTextAlign('center');
-
-  text.setKeyframes([
-    {
-      when: 500,
-      func: 'setFontSize',
-      params: pulseKeyframe(20, 30, 500, function(params) {
-        return [params[0] + 'pt'];
-      }),
-      loopFor: -1
-    },
-  ]);
+  text.setTextBaseline('bottom');
+  text.setTextAlign('left');
 
   return text;
 };
