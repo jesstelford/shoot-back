@@ -27,7 +27,7 @@ module.exports = function getText() {
     transformer
   );
 
-  text.moveTo(50, 50);
+  text.moveTo(0, 0);
   text.setColour('white');
   text.setScale(1);
 

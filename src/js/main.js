@@ -216,6 +216,7 @@ function setupEnemies() {
 function setupGame() {
   createNewCurrentPlayer();
   scoreText = getText();
+  scoreText.moveTo(canvas.width / 4, canvas.height / 4);
 }
 
 function init() {
