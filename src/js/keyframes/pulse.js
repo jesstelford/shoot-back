@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function pulseKeyframe(scaleFrom, scaleTo, duration) {
+module.exports = function pulseKeyframe(scaleFrom, scaleTo, duration, modifier) {
 
   var initialScaleSet = false,
       done = false,
@@ -10,15 +10,17 @@ module.exports = function pulseKeyframe(scaleFrom, scaleTo, duration) {
       scaleDiff = scaleTo - scaleFrom,
       pulsedFor = 0;
 
+  modifier = modifier || function(param) { return param; }
+
   return function(elapsedTime, state) {
 
     if (!initialScaleSet) {
       initialScaleSet = true;
-      return [scaleFrom];
+      return modifier([scaleFrom]);
     }
 
     if (done) {
-      return [scaleFrom];
+      return modifier([scaleFrom]);
     }
 
     pulsedFor += elapsedTime;
@@ -48,7 +50,7 @@ module.exports = function pulseKeyframe(scaleFrom, scaleTo, duration) {
       scale = scaleTo - (((pulsedFor - durationOn2) / durationOn2) * scaleDiff);
     }
 
-    return [scale];
+    return modifier([scale]);
   }
 
 }
