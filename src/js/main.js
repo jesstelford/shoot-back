@@ -225,7 +225,7 @@ function setupGame() {
   scoreText.moveTo(canvas.width / 4, canvas.height / 4);
 
   scoreText.setFont('Sans-Serif');
-  scoreText.setFontSize('20pt');
+  scoreText.setFontSize('0pt');
   scoreText.setFontStyle('bold');
   scoreText.setText('SCORE: ' + score);
 
@@ -233,27 +233,47 @@ function setupGame() {
   scoreText.setTextAlign('center');
 
   scoreText.setKeyframes(
-    pulseKeyframe(
-      500,
-      'setFontSize',
-      20,
-      40,
-      500,
-      function(params) {
-        return [params[0] + 'pt'];
+    [
+      {
+        when: 500,
+        func: 'setFontSize',
+        params: tween(
+          0,
+          40,
+          250,
+          function(params) {
+            return [params[0] + 'pt'];
+          },
+          quadraticInterpolator
+        ),
+        loopFor: 250
       },
-      quadraticInterpolator
-    ).concat([{
-      when: 750,
-      func: 'moveTo',
-      params: tween(
-        [canvas.width / 4, canvas.height / 4],
-        [canvas.width / 2 - 100, 20],
-        250,
-        null,
-        quadraticInterpolator
-      )
-    }])
+      {
+        when: 750,
+        func: 'setFontSize',
+        params: tween(
+          40,
+          20,
+          250,
+          function(params) {
+            return [params[0] + 'pt'];
+          },
+          quadraticInterpolator
+        ),
+        loopFor: 250
+      },
+      {
+        when: 750,
+        func: 'moveTo',
+        params: tween(
+          [canvas.width / 4, canvas.height / 4],
+          [canvas.width / 2 - 100, 20],
+          250,
+          null,
+          quadraticInterpolator
+        )
+      }
+    ]
   );
 }
 
