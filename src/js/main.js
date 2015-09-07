@@ -12,6 +12,8 @@ var getEnemy = require('./enemy'),
     obstacles = require('./obstacles'),
     enemies = require('./enemies'),
     random = require('./random'),
+    tween = require('./keyframes/tween'),
+    quadraticInterpolator = require('./interpolators/quadratic'),
     forOf = require('./utils/for-of');
 
 var canvas = document.querySelector('canvas'),
@@ -230,16 +232,29 @@ function setupGame() {
   scoreText.setTextBaseline('middle');
   scoreText.setTextAlign('center');
 
-  scoreText.setKeyframes(pulseKeyframe(
-    500,
-    'setFontSize',
-    20,
-    40,
-    200,
-    function(params) {
-      return [params[0] + 'pt'];
-    }
-  ));
+  scoreText.setKeyframes(
+    pulseKeyframe(
+      500,
+      'setFontSize',
+      20,
+      40,
+      500,
+      function(params) {
+        return [params[0] + 'pt'];
+      },
+      quadraticInterpolator
+    ).concat([{
+      when: 750,
+      func: 'moveTo',
+      params: tween(
+        [canvas.width / 4, canvas.height / 4],
+        [canvas.width / 2 - 100, 20],
+        250,
+        null,
+        quadraticInterpolator
+      )
+    }])
+  );
 }
 
 function init() {
