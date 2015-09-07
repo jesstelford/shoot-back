@@ -12,6 +12,14 @@ module.exports = {
     this.text = text;
   },
 
+  setTextAlign: function(alignment) {
+    this.textAlign = alignment;
+  },
+
+  setTextBaseline: function(baseline) {
+    this.textBaseline = baseline;
+  },
+
   setFontSize: function(fontSize) {
     this.fontSize = fontSize;
   },
@@ -34,6 +42,8 @@ module.exports = {
     }
 
     ctx.font = this.getFontString();
+    ctx.textAlign = this.textAlign || 'left';
+    ctx.textBaseline = this.textBaseline || 'bottom';
     ctx.fillText(this.text, pos.x, pos.y);
   }
 
