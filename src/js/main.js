@@ -6,6 +6,7 @@ var getEnemy = require('./enemy'),
     getCamera = require('./camera'),
     getText = require('./text'),
     framerate = require('./framerate')(60),
+    pulseKeyframe = require('./keyframes/pulse'),
     cacheGenerator = require('./cache-generator'),
     inputGenerator = require('./input-generator'),
     obstacles = require('./obstacles'),
@@ -40,6 +41,7 @@ var canvas = document.querySelector('canvas'),
     playerPos,
     steps,
     collisionResponse,
+    score = 0,
     scoreText;
 
 function startReplay() {
@@ -215,8 +217,29 @@ function setupEnemies() {
 
 function setupGame() {
   createNewCurrentPlayer();
+
   scoreText = getText();
+
   scoreText.moveTo(canvas.width / 4, canvas.height / 4);
+
+  scoreText.setFont('Sans-Serif');
+  scoreText.setFontSize('20pt');
+  scoreText.setFontStyle('bold');
+  scoreText.setText('SCORE: ' + score);
+
+  scoreText.setTextBaseline('middle');
+  scoreText.setTextAlign('center');
+
+  scoreText.setKeyframes(pulseKeyframe(
+    500,
+    'setFontSize',
+    20,
+    40,
+    200,
+    function(params) {
+      return [params[0] + 'pt'];
+    }
+  ));
 }
 
 function init() {
