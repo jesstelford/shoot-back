@@ -528,6 +528,7 @@ function loop() {
       if (bullet.collidingWith(enemy)) {
 
         // kill this bullet
+        bullet.die();
         bullets.delete(bullet);
         bulletCache.put(bullet);
 
