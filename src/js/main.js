@@ -44,6 +44,8 @@ var canvas = document.querySelector('canvas'),
     steps,
     collisionResponse,
     score = 0,
+    lives = 5,
+    deaths = 0,
     livesText,
     energyText,
     scoreText;
@@ -58,6 +60,8 @@ function startReplay() {
 
 function playerDeath() {
 
+  deaths++;
+
   // start the replay
   startReplay();
 
@@ -68,7 +72,7 @@ function keydown(event) {
   event.preventDefault();
 
   if (event.keyCode == 27) {
-    playerDeath();
+    return playerDeath();
   }
 
   keyState.get(currentPlayer).handleKeyDown(event.keyCode);
@@ -204,6 +208,7 @@ function createNewCurrentPlayer() {
   keyState.set(currentPlayer, inputGenerator());
 
   energyText.setText('energy: ' + player.getEnergy());
+  livesText.setText('lives: ' + (lives - deaths));
 }
 
 function setupEnemies() {
@@ -259,7 +264,7 @@ function setupGame() {
   scoreText = texts[2];
 
   energyText.setText('energy: 100');
-  livesText.setText('lives: 5');
+  livesText.setText('lives: ' + lives);
   scoreText.setText('score: 12034');
 
   createNewCurrentPlayer();
@@ -429,7 +434,7 @@ function loop() {
         if (player === currentPlayer) {
 
           // Current player dying causes a game reset
-          startReplay();
+          playerDeath();
           return false;
 
         } else {
