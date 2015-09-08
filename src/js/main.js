@@ -45,7 +45,6 @@ var canvas = document.querySelector('canvas'),
     steps,
     collisionResponse,
     spawnSequence = [],
-    spawnTimeouts = [],
     score = 0,
     lives = 5,
     deaths = 0,
@@ -171,8 +170,14 @@ function resetGame() {
 
   obstaclesLive.clear();
 
-  forOf(spawnTimeouts, function(timeout) {
-    window.clearTimeout(timeout);
+  forOf(spawnSequence, function(sequence) {
+
+    forOf(sequence.timeouts, function(timeout) {
+      window.clearTimeout(timeout);
+    });
+
+    // clear out the array
+    sequence.timeouts.length = 0;
   });
 
   forOf(enemiesLive, function(enemy) {
@@ -180,8 +185,6 @@ function resetGame() {
     enemies.put(enemy);
   });
 
-  // clear out the array
-  spawnTimeouts.length = 0;
 
   enemiesLive.clear();
 
@@ -232,6 +235,11 @@ function setupEnemies() {
     // there is already a spawn sequence set, so let's use that one
     spawnInfo = spawnSequence[0];
 
+    // unsubscribe where necessary
+    spawnInfo.unsubs.forEach(function(unsub) {
+      unsub();
+    });
+
   } else {
 
     // brand new spawn instance required
@@ -240,7 +248,9 @@ function setupEnemies() {
       yPos: random.betweenInts(canvas.height / 4, canvas.height * 3 / 4),
       type: 0,
       count: 10,
-      spawnSpeed: 300
+      spawnSpeed: 300,
+      timeouts: [],
+      unsubs: []
     }
 
     // store it
@@ -251,22 +261,27 @@ function setupEnemies() {
 
     let enemy = enemies.get(spawnInfo.type),
         creationPromise,
-        deathPromise;
+        deathPromise,
+        deathUnsub;
 
     deathPromise = new Promise(function(resolveDeath) {
       creationPromise = new Promise(function(resolveCreation) {
 
-        spawnTimeouts.push(window.setTimeout(function() {
+        // if any of these timeouts are cancelled, then the promise will not
+        // resolve, and hence the `.every` call below will never execute
+        spawnInfo.timeouts.push(window.setTimeout(function() {
 
           enemy.resetKeyframes();
           enemy.moveTo(canvas.width + camera.getPos().x, spawnInfo.yPos);
           enemy.birth();
 
-          // TODO: How do I cancel this on game reset?
-          enemy.onDeathOnce(function() {
+          // if any of these subscriptoins are unsubscribed from, then the
+          // promise will not resolve, and hence the `.every` call below will
+          // never execute
+          spawnInfo.unsubs.push(enemy.onDeathOnce(function() {
             console.log('enemy dead');
             resolveDeath();
-          });
+          }));
 
           enemiesLive.put(enemy);
 
@@ -293,6 +308,9 @@ function setupEnemies() {
     // All enemies dead
     console.log('all enemies dead');
   });
+
+  spawnSequence.creationPromises = creationPromises;
+  spawnSequence.deathPromises = deathPromises;
 
 }
 
