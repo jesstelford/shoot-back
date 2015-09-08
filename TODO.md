@@ -1,10 +1,5 @@
 * HUD
-  * Score
-  * Energy
-  * Lives / Replays
   * Menu
-* Limit number of bullets that can be fired
-  * Have an energy bar
 * Generalise the record / replay to support more than just multiple players
   * Eg; multiple enemies, etc
 * A collision bounce for objects with velocity
