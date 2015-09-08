@@ -265,7 +265,7 @@ function setupGame() {
 
   energyText.setText('energy: 100');
   livesText.setText('lives: ' + lives);
-  scoreText.setText('score: 12034');
+  scoreText.setText('score: ' + score);
 
   createNewCurrentPlayer();
 }
@@ -463,6 +463,9 @@ function loop() {
         // kill this enemy
         enemiesLive.delete(enemy);
         enemies.put(enemy);
+
+        score++;
+        scoreText.setText('score: ' + score);
       }
     });
   });
