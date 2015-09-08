@@ -13,6 +13,7 @@ var getEnemy = require('./enemy'),
     random = require('./random'),
     tween = require('./keyframes/tween'),
     quadraticInterpolator = require('./interpolators/quadratic'),
+    zoomAndMove = require('./keyframes/zoom-and-move'),
     forOf = require('./utils/for-of');
 
 var canvas = document.querySelector('canvas'),
@@ -43,6 +44,8 @@ var canvas = document.querySelector('canvas'),
     steps,
     collisionResponse,
     score = 0,
+    livesText,
+    energyText,
     scoreText;
 
 function startReplay() {
@@ -219,61 +222,44 @@ function setupEnemies() {
 function setupGame() {
   createNewCurrentPlayer();
 
-  scoreText = getText();
+  var screenWidth = canvas.width / 2;
 
-  scoreText.moveTo(canvas.width / 4, canvas.height / 4);
+  var texts = [100, screenWidth / 2, screenWidth - 100].map(function(xPos, index) {
 
-  scoreText.setFont('Sans-Serif');
-  scoreText.setFontSize('0pt');
-  scoreText.setFontStyle('bold');
-  scoreText.setText('SCORE: ' + score);
+    var text = getText(),
+        duration = 600;
 
-  scoreText.setTextBaseline('middle');
-  scoreText.setTextAlign('center');
+    text.moveTo(0, 0);
 
-  scoreText.setKeyframes(
-    [
-      {
-        when: 500,
-        func: 'setFontSize',
-        params: tween(
-          0,
-          40,
-          250,
-          function(params) {
-            return [params[0] + 'pt'];
-          },
-          quadraticInterpolator
-        ),
-        loopFor: 250
-      },
-      {
-        when: 750,
-        func: 'setFontSize',
-        params: tween(
-          40,
-          20,
-          250,
-          function(params) {
-            return [params[0] + 'pt'];
-          },
-          quadraticInterpolator
-        ),
-        loopFor: 250
-      },
-      {
-        when: 750,
-        func: 'moveTo',
-        params: tween(
-          [canvas.width / 4, canvas.height / 4],
-          [canvas.width / 2 - 100, 20],
-          250,
-          null,
-          quadraticInterpolator
-        )
+    text.setFont('Sans-Serif');
+    text.setFontSize('0pt');
+    text.setFontStyle('bold');
+
+    text.setTextBaseline('middle');
+    text.setTextAlign('center');
+
+    text.setKeyframes(zoomAndMove({
+      when: index * duration,
+      duration: duration,
+      startPos: [canvas.width / 4, canvas.height / 4],
+      endPos: [xPos, 20],
+      maxZoom: 40,
+      restZoom: 20,
+      modifier: function(params) {
+        return [params[0] + 'pt'];
       }
-    ]
-  );
+    }));
+
+    return text;
+  });
+
+  energyText = texts[0];
+  livesText = texts[1];
+  scoreText = texts[2];
+
+  energyText.setText('energy: 100');
+  livesText.setText('lives: 5');
+  scoreText.setText('score: 12034');
 }
 
 function init() {
@@ -468,6 +454,8 @@ function loop() {
   });
 
   // update keyframes
+  energyText.updateKeyFrames(elapsedTime);
+  livesText.updateKeyFrames(elapsedTime);
   scoreText.updateKeyFrames(elapsedTime);
 
   camera.move(1, 0);
@@ -499,6 +487,8 @@ function loop() {
   camera.resetTransformations(ctx);
 
   // HUD is rendered last (on top), and after camera transorms have been removed
+  energyText.render(ctx);
+  livesText.render(ctx);
   scoreText.render(ctx);
 
   keysProcessed();
