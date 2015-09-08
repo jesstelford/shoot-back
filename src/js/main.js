@@ -43,6 +43,7 @@ var canvas = document.querySelector('canvas'),
     playerPos,
     steps,
     collisionResponse,
+    spawnSequence = [],
     spawnTimeouts = [],
     score = 0,
     lives = 5,
@@ -221,16 +222,39 @@ function createNewCurrentPlayer() {
 
 function setupEnemies() {
 
-  var yPos = random.betweenInts(0, canvas.height);
+  var spawnInfo;
 
-  for (var i = 0; i < 10; i++) {
-    // TODO: Cancel timeouts if game reset
+  if (spawnSequence.length > 0) {
+
+    // there is already a spawn sequence set, so let's use that one
+    spawnInfo = spawnSequence[0];
+
+  } else {
+
+    // brand new spawn instance required
+    spawnInfo = {
+      // yPos is always within middle half of screen height
+      yPos: random.betweenInts(canvas.height / 4, canvas.height * 3 / 4),
+      type: 0,
+      count: 10,
+      spawnSpeed: 300
+    }
+
+    // store it
+    spawnSequence.push(spawnInfo);
+  }
+
+  for (var i = 0; i < spawnInfo.count; i++) {
+
     spawnTimeouts.push(window.setTimeout(function() {
-      var enemy = enemies.get(0);
+
+      var enemy = enemies.get(spawnInfo.type);
       enemy.resetKeyframes();
-      enemy.moveTo(canvas.width, yPos);
+      enemy.moveTo(canvas.width + camera.getPos().x, spawnInfo.yPos);
       enemiesLive.put(enemy);
-    }, 400 * i));
+
+    }, spawnInfo.spawnSpeed * i));
+
   }
 
 }
