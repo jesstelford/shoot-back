@@ -12,6 +12,7 @@ var getEnemy = require('./enemy'),
     enemies = require('./enemies'),
     random = require('./random'),
     tween = require('./keyframes/tween'),
+    async = require('./utils/async'),
     quadraticInterpolator = require('./interpolators/quadratic'),
     zoomAndMove = require('./keyframes/zoom-and-move'),
     forOf = require('./utils/for-of');
@@ -222,7 +223,9 @@ function createNewCurrentPlayer() {
 
 function setupEnemies() {
 
-  var spawnInfo;
+  var spawnInfo,
+      creationPromises = [],
+      deathPromises = [];
 
   if (spawnSequence.length > 0) {
 
@@ -246,17 +249,50 @@ function setupEnemies() {
 
   for (var i = 0; i < spawnInfo.count; i++) {
 
-    spawnTimeouts.push(window.setTimeout(function() {
+    let enemy = enemies.get(spawnInfo.type),
+        creationPromise,
+        deathPromise;
 
-      var enemy = enemies.get(spawnInfo.type);
-      enemy.resetKeyframes();
-      enemy.moveTo(canvas.width + camera.getPos().x, spawnInfo.yPos);
-      enemiesLive.put(enemy);
-      enemy.birth()
+    deathPromise = new Promise(function(resolveDeath) {
+      creationPromise = new Promise(function(resolveCreation) {
 
-    }, spawnInfo.spawnSpeed * i));
+        spawnTimeouts.push(window.setTimeout(function() {
+
+          enemy.resetKeyframes();
+          enemy.moveTo(canvas.width + camera.getPos().x, spawnInfo.yPos);
+          enemy.birth();
+
+          // TODO: How do I cancel this on game reset?
+          enemy.onDeathOnce(function() {
+            console.log('enemy dead');
+            resolveDeath();
+          });
+
+          enemiesLive.put(enemy);
+
+          resolveCreation();
+
+        }, spawnInfo.spawnSpeed * i));
+
+      });
+
+      creationPromises.push(creationPromise);
+
+    });
+
+    deathPromises.push(deathPromise);
 
   }
+
+  async.every(creationPromises, function() {
+    // All enemies created
+    console.log('all enemies created');
+  });
+
+  async.every(deathPromises, function() {
+    // All enemies dead
+    console.log('all enemies dead');
+  });
 
 }
 
