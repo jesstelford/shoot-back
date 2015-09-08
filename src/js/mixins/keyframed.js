@@ -73,8 +73,8 @@ module.exports = {
       // limited loop time
       if (frame.loopFor >= 0) {
         // The time for the last loop has expired, so this is the last loop (and
-        // is a partial loop)
-        if (loopUntil < self._keyframeElapsedTime) {
+        // may be a partial loop)
+        if (loopUntil <= self._keyframeElapsedTime) {
           frameState.complete = true;
           elapsedTimeForFrame = self._keyframeElapsedTime - loopUntil;
         } // else: it's in the middle of a loop
