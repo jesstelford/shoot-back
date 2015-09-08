@@ -43,6 +43,7 @@ var canvas = document.querySelector('canvas'),
     playerPos,
     steps,
     collisionResponse,
+    spawnTimeouts = [],
     score = 0,
     lives = 5,
     deaths = 0,
@@ -168,10 +169,17 @@ function resetGame() {
 
   obstaclesLive.clear();
 
+  forOf(spawnTimeouts, function(timeout) {
+    window.clearTimeout(timeout);
+  });
+
   forOf(enemiesLive, function(enemy) {
     enemy.resetKeyframes();
     enemies.put(enemy);
   });
+
+  // clear out the array
+  spawnTimeouts.length = 0;
 
   enemiesLive.clear();
 
@@ -217,11 +225,12 @@ function setupEnemies() {
 
   for (var i = 0; i < 10; i++) {
     // TODO: Cancel timeouts if game reset
-    window.setTimeout(function() {
+    spawnTimeouts.push(window.setTimeout(function() {
       var enemy = enemies.get(0);
+      enemy.resetKeyframes();
       enemy.moveTo(canvas.width, yPos);
       enemiesLive.put(enemy);
-    }, 400 * i);
+    }, 400 * i));
   }
 
 }
