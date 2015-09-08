@@ -202,6 +202,8 @@ function createNewCurrentPlayer() {
   playersLive.put(player);
   keysRecord.set(currentPlayer, []);
   keyState.set(currentPlayer, inputGenerator());
+
+  energyText.setText('energy: ' + player.getEnergy());
 }
 
 function setupEnemies() {
@@ -220,7 +222,6 @@ function setupEnemies() {
 }
 
 function setupGame() {
-  createNewCurrentPlayer();
 
   var screenWidth = canvas.width / 2;
 
@@ -260,6 +261,8 @@ function setupGame() {
   energyText.setText('energy: 100');
   livesText.setText('lives: 5');
   scoreText.setText('score: 12034');
+
+  createNewCurrentPlayer();
 }
 
 function init() {
@@ -330,11 +333,17 @@ function handleInput(player) {
 
       newBullet.onDeathOnce(function() {
         player.changeEnergy(1);
+        if (player === currentPlayer) {
+          energyText.setText('energy: ' + player.getEnergy());
+        }
       });
 
       bullets.add(newBullet);
 
       player.changeEnergy(-1);
+      if (player === currentPlayer) {
+        energyText.setText('energy: ' + player.getEnergy());
+      }
     }
   }
 }
