@@ -252,6 +252,7 @@ function setupEnemies() {
       enemy.resetKeyframes();
       enemy.moveTo(canvas.width + camera.getPos().x, spawnInfo.yPos);
       enemiesLive.put(enemy);
+      enemy.birth()
 
     }, spawnInfo.spawnSpeed * i));
 
@@ -477,6 +478,7 @@ function loop() {
           players.put(player);
 
           // kill this enemy
+          enemy.die();
           enemiesLive.delete(enemy);
           enemies.put(enemy);
         }
@@ -494,6 +496,7 @@ function loop() {
         bulletCache.put(bullet);
 
         // kill this enemy
+        enemy.die();
         enemiesLive.delete(enemy);
         enemies.put(enemy);
 

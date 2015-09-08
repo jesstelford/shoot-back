@@ -2,6 +2,7 @@
 
 var movable = require('./mixins/movable'),
     scalable = require('./mixins/scalable'),
+    killable = require('./mixins/killable'),
     strokable = require('./mixins/strokable'),
     rotatable = require('./mixins/rotatable'),
     keyframed = require('./mixins/keyframed'),
@@ -36,6 +37,7 @@ module.exports = function getEnemy(opts) {
   var enemy = objectAssign(
     {},
     movable,
+    killable(),
     keyframed,
     colourable,
     collidable,
