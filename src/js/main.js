@@ -14,6 +14,7 @@ var getEnemy = require('./enemy'),
     tween = require('./keyframes/tween'),
     async = require('./utils/async'),
     quadraticInterpolator = require('./interpolators/quadratic'),
+    createEnemySequence = require('./create-enemy-sequence'),
     zoomAndMove = require('./keyframes/zoom-and-move'),
     forOf = require('./utils/for-of');
 
@@ -260,69 +261,6 @@ function createNewCurrentPlayer() {
   livesText.setText('lives: ' + (lives - deaths));
 }
 
-function createEnemySpawnSequence(spawnInfo, onEveryCreated, onEveryDead) {
-
-  var creationPromises = [],
-      deathPromises = [];
-
-  for (var i = 0; i < spawnInfo.count; i++) {
-
-    let enemy = enemies.get(spawnInfo.type),
-        creationPromise,
-        deathPromise,
-        deathUnsub;
-
-    deathPromise = new Promise(function(resolveDeath) {
-      creationPromise = new Promise(function(resolveCreation) {
-
-        // if any of these timeouts are cancelled, then the promise will not
-        // resolve, and hence the `.every` call below will never execute
-        spawnInfo.timeouts.push(window.setTimeout(function() {
-
-          enemy.resetKeyframes();
-          enemy.moveTo(canvas.width + camera.getPos().x, spawnInfo.yPos);
-          enemy.birth();
-
-          // if any of these subscriptoins are unsubscribed from, then the
-          // promise will not resolve, and hence the `.every` call below will
-          // never execute
-          spawnInfo.unsubs.push(enemy.onDeathOnce(function() {
-            resolveDeath();
-          }));
-
-          enemiesLive.put(enemy);
-
-          resolveCreation();
-
-        }, spawnInfo.spawnSpeed * i));
-
-      });
-
-      creationPromises.push(creationPromise);
-
-    });
-
-    deathPromises.push(deathPromise);
-
-  }
-
-  async.every(creationPromises, function() {
-    // All enemies created
-    onEveryCreated();
-  });
-
-  async.every(deathPromises, function() {
-    // All enemies dead
-    onEveryDead();
-  });
-
-  spawnInfo.creationPromises = creationPromises;
-  spawnInfo.deathPromises = deathPromises;
-
-  return spawnInfo;
-
-}
-
 function setupEnemies() {
 
   var spawnInfo;
@@ -347,16 +285,26 @@ function setupEnemies() {
 
   sequencesLive.push(spawnInfo);
 
-  createEnemySpawnSequence(spawnInfo, function() {
-    // all enemies created
-  }, function() {
-    // all enemies dead!
+  createEnemySequence({
+    spawnInfo: spawnInfo,
+    getEnemy: enemies.get,
+    initEnemy: function(enemy) {
+      enemy.resetKeyframes();
+      enemy.moveTo(canvas.width + camera.getPos().x, spawnInfo.yPos);
+      enemy.birth();
+    },
+    onCreated: function(enemy) {
+      enemiesLive.put(enemy);
+    },
+    onEveryDead: function() {
+      // all enemies dead!
 
-    // score bonus for killing all the sequence
-    score += 10;
-    scoreText.setText('score: ' + score);
+      // score bonus for killing all the sequence
+      score += 10;
+      scoreText.setText('score: ' + score);
 
-    setupEnemies();
+      setupEnemies();
+    }
   });
 
 }
