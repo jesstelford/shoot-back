@@ -8,12 +8,20 @@ module.exports = function(radius, angleChangePerFrame) {
         newX,
         newY;
 
-    state.radius = state.radius || radius;
+    if (state.radius === undefined) {
+      state.radius = radius;
+    }
 
     // initial position is at the top or bottom of the circle
-    state.angle = state.angle || (angleChangePerFrame > 0 ? Math.PI / 2 : -Math.PI / 2);
-    state.lastX = state.lastX || 0;
-    state.lastY = state.lastY || (angleChangePerFrame > 0 ? state.radius : -state.radius);
+    if (state.angle === undefined) {
+      state.angle = angleChangePerFrame > 0 ? Math.PI / 2 : -Math.PI / 2;
+    }
+    if (state.lastX === undefined) {
+      state.lastX = 0;
+    }
+    if (state.lastY === undefined) {
+      state.lastY = angleChangePerFrame > 0 ? state.radius : -state.radius;
+    }
 
     // rotate clockwise
     state.angle += step * angleChangePerFrame;
