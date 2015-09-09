@@ -44,13 +44,38 @@ var canvas = document.querySelector('canvas'),
     playerPos,
     steps,
     collisionResponse,
-    spawnSequence = [],
     score = 0,
     lives = 5,
     deaths = 0,
     livesText,
     energyText,
-    scoreText;
+    scoreText,
+    sequencesLive = [],
+    sequencesGenerated = [],
+    sequenceGenerators = [
+      function() {
+        return {
+          // yPos is always within middle half of screen height
+          yPos: random.betweenInts(canvas.height / 4, canvas.height * 3 / 4),
+          type: 0,
+          count: 10,
+          spawnSpeed: 300,
+          timeouts: [],
+          unsubs: []
+        }
+      },
+      function() {
+        return {
+          // yPos is always within middle half of screen height
+          yPos: random.betweenInts(canvas.height / 4, canvas.height * 3 / 4),
+          type: 0,
+          count: 10,
+          spawnSpeed: 100,
+          timeouts: [],
+          unsubs: []
+        }
+      }
+    ];
 
 function startReplay() {
 
@@ -170,7 +195,7 @@ function resetGame() {
 
   obstaclesLive.clear();
 
-  forOf(spawnSequence, function(sequence) {
+  forOf(sequencesLive, function(sequence) {
 
     forOf(sequence.timeouts, function(timeout) {
       window.clearTimeout(timeout);
@@ -178,7 +203,18 @@ function resetGame() {
 
     // clear out the array
     sequence.timeouts.length = 0;
+
+    // unsubscribe where necessary
+    sequence.unsubs.forEach(function(unsub) {
+      unsub();
+    });
+
+    // clear out the array
+    sequence.unsubs.length = 0;
+
   });
+
+  sequencesLive.length = 0;
 
   forOf(enemiesLive, function(enemy) {
     enemy.resetKeyframes();
@@ -224,38 +260,10 @@ function createNewCurrentPlayer() {
   livesText.setText('lives: ' + (lives - deaths));
 }
 
-function setupEnemies() {
+function createEnemySpawnSequence(spawnInfo, onEveryCreated, onEveryDead) {
 
-  var spawnInfo,
-      creationPromises = [],
+  var creationPromises = [],
       deathPromises = [];
-
-  if (spawnSequence.length > 0) {
-
-    // there is already a spawn sequence set, so let's use that one
-    spawnInfo = spawnSequence[0];
-
-    // unsubscribe where necessary
-    spawnInfo.unsubs.forEach(function(unsub) {
-      unsub();
-    });
-
-  } else {
-
-    // brand new spawn instance required
-    spawnInfo = {
-      // yPos is always within middle half of screen height
-      yPos: random.betweenInts(canvas.height / 4, canvas.height * 3 / 4),
-      type: 0,
-      count: 10,
-      spawnSpeed: 300,
-      timeouts: [],
-      unsubs: []
-    }
-
-    // store it
-    spawnSequence.push(spawnInfo);
-  }
 
   for (var i = 0; i < spawnInfo.count; i++) {
 
@@ -279,7 +287,6 @@ function setupEnemies() {
           // promise will not resolve, and hence the `.every` call below will
           // never execute
           spawnInfo.unsubs.push(enemy.onDeathOnce(function() {
-            console.log('enemy dead');
             resolveDeath();
           }));
 
@@ -301,16 +308,56 @@ function setupEnemies() {
 
   async.every(creationPromises, function() {
     // All enemies created
-    console.log('all enemies created');
+    onEveryCreated();
   });
 
   async.every(deathPromises, function() {
     // All enemies dead
-    console.log('all enemies dead');
+    onEveryDead();
   });
 
-  spawnSequence.creationPromises = creationPromises;
-  spawnSequence.deathPromises = deathPromises;
+  spawnInfo.creationPromises = creationPromises;
+  spawnInfo.deathPromises = deathPromises;
+
+  return spawnInfo;
+
+}
+
+function setupEnemies() {
+
+  var spawnInfo;
+
+  if (sequencesLive.length >= sequenceGenerators.length) {
+    // no more enemy sequenceGenerators
+    return;
+  }
+
+  if (sequencesGenerated.length > sequencesLive.length) {
+
+    // get the next generated item
+    spawnInfo = sequencesGenerated[sequencesLive.length];
+
+  } else {
+
+    // create a brand new item
+    spawnInfo = sequenceGenerators[sequencesGenerated.length]();
+    sequencesGenerated.push(spawnInfo);
+
+  }
+
+  sequencesLive.push(spawnInfo);
+
+  createEnemySpawnSequence(spawnInfo, function() {
+    // all enemies created
+  }, function() {
+    // all enemies dead!
+
+    // score bonus for killing all the sequence
+    score += 10;
+    scoreText.setText('score: ' + score);
+
+    setupEnemies();
+  });
 
 }
 
