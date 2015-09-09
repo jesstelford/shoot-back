@@ -14,8 +14,13 @@ module.exports = {
 
     promises.forEach(function(promise, index) {
       promise.then(function(result) {
+        var doneLength;
         done[index] = result;
-        if (done.length === promises.length) {
+
+        // must use reduce as `done` is a sparse array, and so `.length` is
+        // unreliable
+        doneLength = done.reduce(function(count) { return count + 1 }, 0);
+        if (doneLength === promises.length) {
           complete(done);
         }
       });
