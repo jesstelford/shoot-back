@@ -36,6 +36,7 @@ module.exports = {
                  if < 0, loop forever
                  if 0, never loop
                  if > 0, loop continuously until that time is reached
+        reset: if true, will reset the state once. func, params, loopFor is ignored.
       }
    */
   setKeyframes: function(keyframes) {
@@ -61,6 +62,13 @@ module.exports = {
         // If it's not time for this keyframe to be executed, skip it
         || frame.when > self._keyframeElapsedTime
       ) {
+        return;
+      }
+
+      if (frame.reset) {
+        self._keyframeState[index] = {
+          complete: true
+        };
         return;
       }
 
