@@ -50,54 +50,81 @@ function semiCircle(when, duration, radius, direction) {
 function figure8(when, durationPerLoop, radius) {
   return [
     circle(when, durationPerLoop, radius, -1),
-    circle(when + durationPerLoop, durationPerLoop, radius, 1)
+    {
+      when: when + durationPerLoop,
+      reset: true
+    },
+    circle(when + durationPerLoop, durationPerLoop, radius, 1),
+    {
+      when: when + durationPerLoop * 2,
+      reset: true
+    },
   ]
 }
 
-function move(when, duration, rate) {
+function move(when, duration, rateX, rateY) {
+  if (rateY === undefined) {
+    rateY = 0;
+  }
   return {
     when: when,
     func: 'move',
     params: function(elapsedTime) {
       var step = elapsedTime / (1000 / 60);
-      return [step * rate, 0];
+      return [step * rateX, step * rateY];
     },
     loopFor: duration
   }
 }
 
+var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4'),
+    collision = [
+      {x: -10.5, y: -4.5},
+      {x: 10.5, y: 0.5},
+      {x: -10.5, y: 4.5}
+    ];
+
 var types = [
   {
-    path: new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4'),
-    collision: [
-      {x: -10.5, y: -4.5},
-      {x: 10.5, y: 0.5},
-      {x: -10.5, y: 4.5}
-    ],
+    path: path,
+    collision: collision,
     rotation: Math.PI,
     keyframes: [
-      move(0, 1000, -4),
-      move(1000, 5000, 1),
-      move(5000, -1, -4)
-    ].concat(
-      fullWave(1000, 4000, 2, 100, -1)
-      /* semiCircle(2000, 1000, 120, -1) */
-      /* figure8(2000, 4000, 120) */
-    )
+      move(0, 500, -2),
+      fullWave(500, 12000, 3, 200, -1),
+      move(4500, -1, -1),
+      move(8500, -1, 3),
+      move(12500, -1, -4)
+    ]
   },
   {
-    path: new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4'),
-    collision: [
-      {x: -10.5, y: -4.5},
-      {x: 10.5, y: 0.5},
-      {x: -10.5, y: 4.5}
-    ],
+    path: path,
+    collision: collision,
+    rotation: Math.PI,
+    keyframes: [
+      move(0, 2000, -2),
+      move(2000, 1000, 2),
+      semiCircle(2000, 1000, 120, -1),
+      move(3000, 1000, -2),
+      move(4000, 1000, 2),
+      semiCircle(4000, 1000, 120, 1),
+      move(5000, -1, -4)
+    ]
+  },
+  {
+    path: path,
+    collision: collision,
     rotation: Math.PI,
     keyframes: [
       move(0, 2000, -4),
-      move(3000, -1, -4)
+      move(2000, 20000, 1),
+      move(22000, -1, -4)
     ].concat(
-      figure8(2000, 4000, 120)
+      figure8(2000, 2000, 80),
+      figure8(6000, 2000, 80),
+      figure8(10000, 2000, 80),
+      figure8(14000, 2000, 80),
+      figure8(18000, 2000, 80)
     )
   }
 ];
