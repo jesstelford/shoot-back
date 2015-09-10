@@ -412,11 +412,6 @@ function renderBullets(bullets) {
   });
 }
 
-function handleBullets(bullets, steps) {
-  loopBullets(bullets, steps);
-  renderBullets(bullets);
-}
-
 function handleInput(player) {
 
   var keyStateForPlayer = keyState.get(player);
@@ -484,6 +479,8 @@ function forAllPlayers(cb) {
 }
 
 function loopGame(gameTimeElapsed, elapsedTime) {
+
+  loopBullets(bullets, steps);
 
   // Don't replay keys currently being recorded for current player
   forNotCurrentPlayer(function(player) {
@@ -585,8 +582,6 @@ function loopGame(gameTimeElapsed, elapsedTime) {
 
 function renderGame() {
 
-  camera.setTransformations(ctx, true);
-
   // only render when on screen
   forOf(playersLive, function(player) {
     if (player.collidingWith(camera, false)) {
@@ -605,6 +600,16 @@ function renderGame() {
     obstacle.render(ctx);
   });
 
+  renderBullets(bullets);
+
+}
+
+function loopHUD(elapsedTime) {
+
+  // update keyframes
+  energyText.updateKeyFrames(elapsedTime);
+  livesText.updateKeyFrames(elapsedTime);
+  scoreText.updateKeyFrames(elapsedTime);
 }
 
 function renderHUD() {
@@ -626,19 +631,13 @@ function loop() {
   setWhenOnKeypresses(gameTimeElapsed);
 
   loopGame(gameTimeElapsed, elapsedTime);
-
-  // update keyframes
-  energyText.updateKeyFrames(elapsedTime);
-  livesText.updateKeyFrames(elapsedTime);
-  scoreText.updateKeyFrames(elapsedTime);
+  loopHUD(elapsedTime);
 
   // TODO: Optimize this
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  camera.setTransformations(ctx, true);
   renderGame();
-
-  handleBullets(bullets, steps);
-
   camera.resetTransformations(ctx);
 
   renderHUD();
