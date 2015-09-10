@@ -69,9 +69,20 @@ var canvas = document.querySelector('canvas'),
         return {
           // yPos is always within middle half of screen height
           yPos: random.betweenInts(canvas.height / 4, canvas.height * 3 / 4),
-          type: 0,
-          count: 10,
+          type: 1,
+          count: 15,
           spawnSpeed: 100,
+          timeouts: [],
+          unsubs: []
+        }
+      },
+      function() {
+        return {
+          // yPos is always within middle half of screen height
+          yPos: random.betweenInts(canvas.height / 4, canvas.height * 3 / 4),
+          type: 2,
+          count: 20,
+          spawnSpeed: 200,
           timeouts: [],
           unsubs: []
         }
