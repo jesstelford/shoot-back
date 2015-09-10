@@ -46,7 +46,7 @@ var canvas = document.querySelector('canvas'),
     steps,
     collisionResponse,
     score = 0,
-    lives = 5,
+    lives = 4,
     deaths = 0,
     livesText,
     energyText,
@@ -101,8 +101,14 @@ function playerDeath() {
 
   deaths++;
 
-  // start the replay
-  startReplay();
+  if (deaths > lives) {
+    // Game Over man, Game Over!
+    console.log('game over');
+  } else {
+
+    // start the replay
+    startReplay();
+  }
 
 }
 
