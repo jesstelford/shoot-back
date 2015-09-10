@@ -1,62 +1,41 @@
 'use strict';
 
-var forOf = require('../utils/for-of');
-
-module.exports = function() {
-
-  var listeners = new Set();
-
-  var createUnsubcribe = function(callback) {
-    return function() {
-      if (listeners.has(callback)) {
-        listeners.delete(callback);
-      }
+function invariant() {
+  if (process.env.NODE_ENV !== 'production') {
+    if (!this.isSubscribable) {
+      throw new Error('Killable requires Subscribable to be mixed in');
     }
   }
+}
 
-  return {
+module.exports = {
 
-    isKillable: true,
+  isKillable: true,
 
-    isAlive: function() {
-      return this.alive;
-    },
+  isAlive: function() {
+    return this.alive;
+  },
 
-    birth: function() {
-      this.alive = true;
-    },
+  birth: function() {
+    this.alive = true;
+  },
 
-    die: function() {
-      this.alive = false;
-      forOf(listeners, function(listener) {
-        listener()
-      });
-    },
+  die: function() {
+    invariant.call(this);
 
-    onDeath: function(cb) {
+    this.alive = false;
+    this.trigger('death');
+  },
 
-      var callback = cb.bind(this);
+  onDeath: function(cb) {
+    invariant.call(this);
 
-      listeners.add(callback);
+    return this.on('death', cb);
+  },
 
-      return createUnsubcribe(callback);
-    },
+  onDeathOnce: function(cb) {
+    invariant.call(this);
 
-    onDeathOnce: function(cb) {
-
-      var unsub,
-          callback;
-
-      callback = function() {
-        cb.call(this);
-        unsub();
-      }
-
-      unsub = createUnsubcribe(callback);
-
-      listeners.add(callback);
-
-      return unsub;
-    }
-  };
+    return this.once('death', cb);
+  }
 }

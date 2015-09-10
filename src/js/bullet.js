@@ -9,6 +9,7 @@ var ttl = require('./mixins/ttl'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
     transformer = require('./mixins/transformer'),
+    subscribable = require('./mixins/subscribable'),
     objectAssign = require('object-assign');
 
 var bulletPath = new Path2D('M-2.5 0.5 l4 0'),
@@ -18,11 +19,12 @@ module.exports = function getBullet() {
 
   var bullet = objectAssign(
     {},
+    subscribable(),
     movable,
     colourable,
     collidable,
     scalable,
-    killable(),
+    killable,
     strokable,
     renderable,
     ttl,

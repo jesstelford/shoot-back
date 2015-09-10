@@ -10,6 +10,7 @@ var movable = require('./mixins/movable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
     transformer = require('./mixins/transformer'),
+    subscribable = require('./mixins/subscribable'),
     objectAssign = require('object-assign');
 
 /**
@@ -37,7 +38,8 @@ module.exports = function getEnemy(opts) {
   var enemy = objectAssign(
     {},
     movable,
-    killable(),
+    subscribable(),
+    killable,
     keyframed,
     colourable,
     collidable,
