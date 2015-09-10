@@ -69,7 +69,7 @@ module.exports = function() {
           unsub,
           self = this,
           callback = function() {
-            cb.call(self);
+            cb.apply(self, Array.prototype.slice.call(arguments));
             // immediately unsubscribe after executing the callback
             unsub();
           };
@@ -85,13 +85,16 @@ module.exports = function() {
      * Execute all the listening events for the given event
      *
      * @param event Mixed The event's UID
+     * @param ... Mixed Any extra parameters are passed through to the listeners
      */
     trigger: function(event) {
 
-      var listenerSet = getListenerSet(event);
+      var listenerSet = getListenerSet(event),
+          restArgs = Array.prototype.slice.call(arguments, 1);
 
       forOf(listenerSet, function(listener) {
-        listener()
+        // context doesn't matter, we have already set it in on/once
+        listener.apply(null, restArgs)
       });
     }
   }
