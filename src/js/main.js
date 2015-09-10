@@ -245,6 +245,12 @@ function resetGame() {
   // Setup the live game objects
   camera.moveTo(0, 0);
 
+  // revive killed players
+  forOf(players, function(player) {
+    playersLive.put(player);
+    players.delete(player);
+  });
+
   forAllPlayers(function(player) {
     player.moveTo(50, 50);
     player.setEnergy(10);
