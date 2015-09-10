@@ -379,7 +379,7 @@ function init() {
   loop();
 }
 
-function handleBullets(bullets, steps) {
+function loopBullets(bullets) {
 
   bullets.forEach(function(bullet) {
 
@@ -393,7 +393,16 @@ function handleBullets(bullets, steps) {
 
       // put onto the cached bullets list
       bulletCache.put(bullet);
-    } else {
+    }
+
+  });
+}
+
+function renderBullets(bullets) {
+
+  bullets.forEach(function(bullet) {
+
+    if (!bullet.dead()) {
       // only render when on screen
       if (bullet.collidingWith(camera, false)) {
         bullet.render(ctx);
@@ -401,6 +410,11 @@ function handleBullets(bullets, steps) {
     }
 
   });
+}
+
+function handleBullets(bullets, steps) {
+  loopBullets(bullets, steps);
+  renderBullets(bullets);
 }
 
 function handleInput(player) {
@@ -469,15 +483,7 @@ function forAllPlayers(cb) {
   forOf(playersLive, cb);
 }
 
-function loop() {
-
-  var now = Date.now(),
-      gameTimeElapsed = now - gameStartTime;
-
-  elapsedTime = framerate.time(now);
-  steps = elapsedTime / targetElapsedTime;
-
-  setWhenOnKeypresses(gameTimeElapsed);
+function loopGame(gameTimeElapsed, elapsedTime) {
 
   // Don't replay keys currently being recorded for current player
   forNotCurrentPlayer(function(player) {
@@ -573,14 +579,11 @@ function loop() {
     });
   });
 
-  // update keyframes
-  energyText.updateKeyFrames(elapsedTime);
-  livesText.updateKeyFrames(elapsedTime);
-  scoreText.updateKeyFrames(elapsedTime);
-
   camera.move(1, 0);
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function renderGame() {
 
   camera.setTransformations(ctx, true);
 
@@ -602,14 +605,43 @@ function loop() {
     obstacle.render(ctx);
   });
 
-  handleBullets(bullets, steps);
+}
 
-  camera.resetTransformations(ctx);
+function renderHUD() {
 
   // HUD is rendered last (on top), and after camera transorms have been removed
   energyText.render(ctx);
   livesText.render(ctx);
   scoreText.render(ctx);
+}
+
+function loop() {
+
+  var now = Date.now(),
+      gameTimeElapsed = now - gameStartTime;
+
+  elapsedTime = framerate.time(now);
+  steps = elapsedTime / targetElapsedTime;
+
+  setWhenOnKeypresses(gameTimeElapsed);
+
+  loopGame(gameTimeElapsed, elapsedTime);
+
+  // update keyframes
+  energyText.updateKeyFrames(elapsedTime);
+  livesText.updateKeyFrames(elapsedTime);
+  scoreText.updateKeyFrames(elapsedTime);
+
+  // TODO: Optimize this
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  renderGame();
+
+  handleBullets(bullets, steps);
+
+  camera.resetTransformations(ctx);
+
+  renderHUD();
 
   keysProcessed();
   requestAnimationFrame(loop);
