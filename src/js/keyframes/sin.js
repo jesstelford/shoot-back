@@ -20,7 +20,9 @@ module.exports = function(amplitude, angleChangePerFrame, startAt, axis) {
 
     state.amplitude = state.amplitude || amplitude;
 
-    if (state.angle === undefined) {
+    if (state.init === undefined) {
+      state.init = true;
+
       // initial position is at the top or bottom of the sine wave
       if (startAt === 'bottom') {
         state.angle = -Math.PI / 2;
@@ -30,13 +32,7 @@ module.exports = function(amplitude, angleChangePerFrame, startAt, axis) {
         state.angle = 0;
       }
 
-    }
-
-    if (state.angleChangePerFrame === undefined) {
       state.angleChangePerFrame = angleChangePerFrame;
-    }
-
-    if (state.lastX === undefined) {
 
       if (axis === 'x') {
 
@@ -54,9 +50,6 @@ module.exports = function(amplitude, angleChangePerFrame, startAt, axis) {
 
         state.lastX = 0;
       }
-    }
-
-    if (state.lastY === undefined) {
 
       if (axis === 'y') {
 

@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function(radius, angleChangePerFrame) {
+
   return function rotateClockwise(elapsedTime, state) {
 
     var step = elapsedTime / (1000 / 60),
@@ -8,18 +9,14 @@ module.exports = function(radius, angleChangePerFrame) {
         newX,
         newY;
 
-    if (state.radius === undefined) {
-      state.radius = radius;
-    }
+    if (state.init === undefined) {
+      state.init = true;
 
-    // initial position is at the top or bottom of the circle
-    if (state.angle === undefined) {
+      state.radius = radius;
+
+      // initial position is at the top or bottom of the circle
       state.angle = angleChangePerFrame > 0 ? Math.PI / 2 : -Math.PI / 2;
-    }
-    if (state.lastX === undefined) {
       state.lastX = 0;
-    }
-    if (state.lastY === undefined) {
       state.lastY = angleChangePerFrame > 0 ? state.radius : -state.radius;
     }
 
