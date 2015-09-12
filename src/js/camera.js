@@ -26,8 +26,20 @@ module.exports = function getCamera(x, y, width, height) {
       x: x,
       y: y,
 
+      width: width,
+      height: height,
+
       setSize: function(width, height) {
+        this.width = width;
+        this.height = height;
         setCollisionBoundsFor(camera, width, height);
+      },
+
+      getSize: function() {
+        return {
+          width: this.width,
+          height: this.height
+        }
       }
 
     }
