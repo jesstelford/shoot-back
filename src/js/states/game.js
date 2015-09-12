@@ -265,7 +265,7 @@ function setupEnemies() {
       self.trigger('score', score);
       /* scoreText.setText('score: ' + score); */
 
-      setupEnemies();
+      setupEnemies.call(self);
     }
   });
 
@@ -355,7 +355,7 @@ function resetGame() {
     player.setEnergy(10);
   });
 
-  setupEnemies();
+  setupEnemies.call(this);
   setupObstacles();
 
   totalGameTime = 0;
@@ -389,7 +389,7 @@ function createNewCurrentPlayer() {
 function startReplay() {
 
   // reset everything
-  resetGame();
+  resetGame.call(this);
   createNewCurrentPlayer.call(this);
 
 }
@@ -436,7 +436,7 @@ module.exports = objectAssign(
       document.addEventListener('keydown', keydown, false);
       document.addEventListener('keyup', keyup, false);
 
-      resetGame();
+      resetGame.call(this);
     },
 
     update: function(elapsedTime) {
