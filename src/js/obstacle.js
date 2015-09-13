@@ -61,7 +61,7 @@ module.exports = function getObstacle(opts) {
   obstacle.moveTo(options.pos.x, options.pos.y);
   obstacle.setColour(options.colour);
   obstacle.setScale(options.scale);
-  obstacle.setLineWidth(options.lineWidth);
+  obstacle.setAbsoluteLineWidth(options.lineWidth);
 
   return obstacle;
 };

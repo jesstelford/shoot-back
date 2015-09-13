@@ -8,13 +8,26 @@ module.exports = {
     this.lineWidth = width;
   },
 
+  setAbsoluteLineWidth: function(width) {
+    this.absoluteLineWidth = width;
+  },
+
   setPath: function(path) {
     this.path = path;
   },
 
   stroke: function(ctx) {
 
-    ctx.lineWidth = this.lineWidth;
+    if (this.absoluteLineWidth) {
+      if (this.isScalable) {
+        ctx.lineWidth = this.absoluteLineWidth / this.getScale();
+      } else {
+        ctx.lineWidth = this.absoluteLineWidth;
+      }
+    } else {
+      ctx.lineWidth = this.lineWidth;
+    }
+
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
