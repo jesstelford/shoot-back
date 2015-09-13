@@ -406,6 +406,7 @@ function playerDeath(when) {
 
   if (deaths > lives) {
     // Game Over man, Game Over!
+    // TODO
     console.log('game over');
   } else {
 
