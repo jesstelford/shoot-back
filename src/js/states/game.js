@@ -381,6 +381,7 @@ function createNewCurrentPlayer() {
   // TODO: Make subscribers
   this.trigger('energy', player.getEnergy());
   this.trigger('lives', lives - deaths);
+  this.trigger('score', score);
   /* energyText.setText('energy: ' + player.getEnergy()); */
   /* livesText.setText('lives: ' + (lives - deaths)); */
 }
