@@ -1,3 +1,4 @@
+* releaseAllKeys() function when player dies / game is paused / etc.
 * HUD
   * Menu
 * Generalise the record / replay to support more than just multiple players
