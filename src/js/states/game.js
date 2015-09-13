@@ -276,23 +276,51 @@ function setupEnemies() {
 function setupObstacles() {
 
   var i,
-      minScale = Math.floor(gameHeight / 4),
-      maxScale = Math.floor(gameHeight / 3),
+      startX = 500,
+      xOffset,
+      spaceX,
+      minScale = Math.floor(gameHeight / 6),
+      maxScale = Math.floor(gameHeight / 2),
+      scale,
       obstacle;
 
   for (i = 0; i < 4; i++) {
+
+    scale = random.betweenInts(minScale, maxScale);
+
+    // Origin is top-left of obstacle, so need to shift it in x-axis
+    xOffset = -scale / 2;
+
+    // A random amount of space between the last one and this one
+    spaceX = random.betweenInts(scale / 2, scale * 2);
+
     obstacle = obstacles.get(i);
-    obstacle.moveTo(500 + (i * 250), 0);
-    obstacle.setScale(random.betweenInts(minScale, maxScale));
+    obstacle.moveTo(startX + xOffset + spaceX, 0);
+    obstacle.setScale(scale);
     obstaclesLive.put(obstacle);
+
+    startX += scale + spaceX;
   }
 
+  startX = 500;
+
   for (i = 0; i < 4; i++) {
+
+    scale = random.betweenInts(minScale, maxScale);
+
+    // Origin is bottom-right of obstacle, so need to shift it in x-axis
+    xOffset = scale / 2;
+
+    // A random amount of space between the last one and this one
+    spaceX = random.betweenInts(scale / 2, scale * 2);
+
     obstacle = obstacles.get(i);
-    obstacle.moveTo(500 + (i * 250), gameHeight);
-    obstacle.setScale(random.betweenInts(minScale, maxScale));
+    obstacle.moveTo(startX + xOffset + spaceX, gameHeight);
+    obstacle.setScale(scale);
     obstacle.rotateTo(Math.PI);
     obstaclesLive.put(obstacle);
+
+    startX += scale + spaceX;
   }
 
 }
