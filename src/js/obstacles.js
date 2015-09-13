@@ -67,8 +67,7 @@ var obstacles = {
         return getObstacle({
           type: type,
           path: types[type].path,
-          collision: types[type].collision,
-          scale: 100
+          collision: types[type].collision
         });
       },
 

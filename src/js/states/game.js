@@ -276,17 +276,21 @@ function setupEnemies() {
 function setupObstacles() {
 
   var i,
+      minScale = Math.floor(gameHeight / 4),
+      maxScale = Math.floor(gameHeight / 3),
       obstacle;
 
   for (i = 0; i < 4; i++) {
     obstacle = obstacles.get(i);
-    obstacle.moveTo(500 + (i * 250), 10);
+    obstacle.moveTo(500 + (i * 250), 0);
+    obstacle.setScale(random.betweenInts(minScale, maxScale));
     obstaclesLive.put(obstacle);
   }
 
   for (i = 0; i < 4; i++) {
     obstacle = obstacles.get(i);
     obstacle.moveTo(500 + (i * 250), gameHeight);
+    obstacle.setScale(random.betweenInts(minScale, maxScale));
     obstacle.rotateTo(Math.PI);
     obstaclesLive.put(obstacle);
   }
