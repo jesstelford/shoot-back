@@ -7,48 +7,47 @@ var getObstacle = require('./obstacle'),
 
 var types = [
   {
-    path: new Path2D('M0.5 0.5 l20 40 l10 10 l20 -10 l4 -40'),
+    path: new Path2D('M0 0 l0.37 0.74 l0.18 0.18 l0.37 -0.18 l0.07 -0.74'),
     collision: [
-      {x:  0.5, y:  0.5},
-      {x: 20.5, y: 40.5},
-      {x: 30.5, y: 50.5},
-      {x: 50.5, y: 40.5},
-      {x: 54.5, y:  0.5}
+      {x: 0,    y: 0},
+      {x: 0.37, y: 0.74},
+      {x: 0.55, y: 0.92},
+      {x: 0.92, y: 0.74},
+      {x: 1,    y: 0}
     ]
   },
   {
-    path: new Path2D('M0.5 0.5 l15 60 l10 -40 l5 20 l15 -40'),
+    path: new Path2D('M0 0 l0.25 1 l0.16 -0.66 l0.08 0.33 l0.25 -0.66'),
     // Note: We purposely remove the vertex when the point is internal. The
     // collision boundaries must be a right hand wound convex shape.
     collision: [
-      {x:  0.5, y:  0.5},
-      {x: 15.5, y: 60.5},
-      {x: 30.5, y: 40.5},
-      {x: 45.5, y:  0.5}
+      {x: 0,    y: 0},
+      {x: 0.25, y: 1},
+      {x: 0.5,  y: 0.66},
+      {x: 0.75, y: 0}
     ]
   },
   {
-    path: new Path2D('M0.5 0.5 l5 20 l7 -10 l3 15 l8 -18 l12 53 l20 -60'),
+    path: new Path2D('M0 0 l0.08 0.33 l0.12 -0.17 l0.05 0.25 l0.13 -0.3 l0.2 0.88 l0.33 -1'),
     // Note: We purposely remove the vertex when the point is internal. The
     // collision boundaries must be a right hand wound convex shape.
     collision: [
-      {x:  0.5, y:  0.5},
-      {x:  5.5, y: 20.5},
-      {x: 15.5, y: 25.5},
-      {x: 35.5, y: 60.5},
-      {x: 55.5, y:  0.5}
+      {x: 0,    y: 0},
+      {x: 0.83, y: 0.33},
+      {x: 0.25, y: 0.42},
+      {x: 0.58, y: 1},
+      {x: 0.92, y: 0}
     ]
   },
   {
-    path: new Path2D('M20.5 0.5 l-20 20 l30 10 l10 25 l10 -55'),
+    path: new Path2D('M0.36 0 l-0.36 0.36 l0.54 0.18 l0.18 0.45 l0.18 -1'),
     // Note: We purposely remove the vertex when the point is internal. The
     // collision boundaries must be a right hand wound convex shape.
     collision: [
-      {x: 20.5, y:  0.5},
-      {x:  0.5, y: 20.5},
-      {x: 30.5, y: 30.5},
-      {x: 40.5, y: 55.5},
-      {x: 50.5, y:  0.5}
+      {x: 0.36, y: 0},
+      {x: 0,    y: 0.36},
+      {x: 0.73, y: 1},
+      {x: 0.91, y: 0}
     ]
   }
 ];
@@ -68,7 +67,8 @@ var obstacles = {
         return getObstacle({
           type: type,
           path: types[type].path,
-          collision: types[type].collision
+          collision: types[type].collision,
+          scale: 100
         });
       },
 
