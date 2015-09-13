@@ -1,6 +1,7 @@
 'use strict';
 
-var cacheGenerator = require('./cache-generator');
+var forOf = require('./utils/for-of'),
+    cacheGenerator = require('./cache-generator');
 
 module.exports = function(name, createNew, defaultValue) {
 
@@ -17,7 +18,10 @@ module.exports = function(name, createNew, defaultValue) {
       cache = cacheGenerator(cacheName);
 
   var recording = {
-    put: cache.put
+    put: cache.put,
+    forOf: function(iterator) {
+      forOf(cache[Symbol.iterator](), iterator);
+    }
   }
 
   // An iterator generator (can't use actual generators as uglifyjs doesn't yet
