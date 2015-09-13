@@ -40,6 +40,16 @@ module.exports = function() {
       for (var key in keyState) {
         keyState[key] = 2;
       };
+    },
+
+    getAllNotUp: function getAllNotUp() {
+      var result = [];
+      for (var key in keyState) {
+        if (keyState[key]) {
+          result.push(key);
+        }
+      };
+      return result;
     }
   };
 }

@@ -80,11 +80,7 @@ var KEY_PAGE_UP = 34,
 
 function keydown(event) {
 
-  event.preventDefault();
-
-  if (event.keyCode == 27) {
-    return playerDeath();
-  }
+  event.preventDefault && event.preventDefault();
 
   keyState.get(currentPlayer).handleKeyDown(event.keyCode);
 
@@ -98,7 +94,7 @@ function keydown(event) {
 
 function keyup(event) {
 
-  event.preventDefault();
+  event.preventDefault && event.preventDefault();
 
   keyState.get(currentPlayer).handleKeyUp(event.keyCode);
 
@@ -131,6 +127,12 @@ function forAllPlayers(cb) {
 function keysProcessed() {
   forOf(keyState, function(keyStateMap) {
     keyStateMap[1].markDownAsHeld()
+  });
+}
+
+function releaseAllKeys() {
+  keyState.get(currentPlayer).getAllNotUp().forEach(function(keyCode) {
+    keyup({keyCode: keyCode});
   });
 }
 
@@ -395,7 +397,10 @@ function startReplay() {
 
 }
 
-function playerDeath() {
+function playerDeath(when) {
+
+  releaseAllKeys();
+  setWhenOnKeypresses(when);
 
   deaths++;
 
@@ -515,7 +520,7 @@ module.exports = objectAssign(
             if (player === currentPlayer) {
 
               // Current player dying causes a game reset
-              playerDeath.call(self);
+              playerDeath.call(self, totalGameTime);
               return false;
 
             } else {
