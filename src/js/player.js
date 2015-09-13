@@ -8,15 +8,18 @@ var movable = require('./mixins/movable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
     transformer = require('./mixins/transformer'),
+    identifiable = require('./mixins/identifiable'),
     objectAssign = require('object-assign');
 
-var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4');
+var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4'),
+    UUID = 0;
 
 module.exports = function getPlayer() {
 
   var player = objectAssign(
     {},
     movable,
+    identifiable,
     colourable,
     collidable,
     scalable,
@@ -25,6 +28,9 @@ module.exports = function getPlayer() {
     renderable,
     transformer
   );
+
+  player.setId(UUID);
+  UUID++;
 
   player.moveTo(50, 50);
   player.setColour('blue');
