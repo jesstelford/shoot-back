@@ -28,41 +28,44 @@ module.exports = function createEnemySequence(opts) {
 
   for (var i = 0; i < options.spawnInfo.count; i++) {
 
-    var enemy = options.getEnemy(options.spawnInfo.type),
-        creationPromise,
-        deathPromise,
-        deathUnsub;
+    (function(enemy) {
 
-    deathPromise = new Promise(function(resolveDeath) {
-      creationPromise = new Promise(function(resolveCreation) {
+      var creationPromise,
+          deathPromise,
+          deathUnsub;
 
-        // if any of these timeouts are cancelled, then the promise will not
-        // resolve, and hence the `.every` call below will never execute
-        options.spawnInfo.timeouts.push(window.setTimeout(function() {
+      deathPromise = new Promise(function(resolveDeath) {
+        creationPromise = new Promise(function(resolveCreation) {
 
-          options.initEnemy(enemy);
+          // if any of these timeouts are cancelled, then the promise will not
+          // resolve, and hence the `.every` call below will never execute
+          options.spawnInfo.timeouts.push(window.setTimeout(function() {
 
-          // if any of these subscriptoins are unsubscribed from, then the
-          // promise will not resolve, and hence the `.every` call below will
-          // never execute
-          options.spawnInfo.unsubs.push(enemy.onDeathOnce(function() {
-            options.onDeath(enemy);
-            resolveDeath();
-          }));
+            options.initEnemy(enemy);
 
-          options.onCreated(enemy);
+            // if any of these subscriptoins are unsubscribed from, then the
+            // promise will not resolve, and hence the `.every` call below will
+            // never execute
+            options.spawnInfo.unsubs.push(enemy.onDeathOnce(function() {
+              options.onDeath(enemy);
+              resolveDeath();
+            }));
 
-          resolveCreation();
+            options.onCreated(enemy);
 
-        }, options.spawnInfo.spawnSpeed * i));
+            resolveCreation();
+
+          }, options.spawnInfo.spawnSpeed * i));
+
+        });
+
+        creationPromises.push(creationPromise);
 
       });
 
-      creationPromises.push(creationPromise);
+      deathPromises.push(deathPromise);
 
-    });
-
-    deathPromises.push(deathPromise);
+    })(options.getEnemy(options.spawnInfo.type));
 
   }
 
