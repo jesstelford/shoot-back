@@ -92,6 +92,10 @@ var obstacles = {
 
   put: function(obstacle) {
     cache.put(obstacle);
+  },
+
+  getTypes: function() {
+    return types;
   }
 
 }
