@@ -19,7 +19,7 @@ var movable = require('./mixins/movable'),
  *             - pos: [optional] {x, y} position. Default: {x: 0, y: 0}
  *             - colour: [optional]. Default: 'red'
  *             - scale: [optional]. Default: 1
- *             - lineWidth: [optional]. Default: 3
+ *             - lineWidth: [optional] Absolute line width. Default: 3
  *
  * @return Object the obstacle
  */
@@ -48,7 +48,9 @@ module.exports = function getObstacle(opts) {
     pos: {x: 0, y: 0},
     colour: 'red',
     scale: 1,
-    lineWidth: 3
+    lineWidth: 3,
+    path: [],
+    collision: []
   }, opts);
 
   if (typeof options.type !== 'undefined') {
