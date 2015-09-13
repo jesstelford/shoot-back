@@ -51,7 +51,14 @@ module.exports = function(name, createNew, defaultValue) {
       next: function(canUse) {
 
         var newSize = cache.size(),
-            args = Array.prototype.slice.call(arguments, 1);
+            args = Array.prototype.slice.call(arguments),
+            i;
+
+        if (typeof canUse === 'function') {
+          args = args.slice(1);
+        } else {
+          canUse = undefined;
+        }
 
         // items have been added or removed since iterator was generated
         // So let's fix up the iterator and start again
