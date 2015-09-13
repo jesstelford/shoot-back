@@ -280,6 +280,32 @@ function setupEnemies() {
 
 function setupObstacles() {
 
+  /*
+  TODO: Setup a generator to create an obstacle given a previous obstacle's
+  position.
+  Create a recording using that generator
+  Iterate on the recording until a generated obstacle is off the screen to
+  the right.
+  Generate an iterator to track the 'first' obstacle in the recording
+  Record which was the last obstacle generated.
+  Add each obstacle to the obstaclesLive list for collision in the main loop.
+  Now we have our initial set of obstacles.
+
+  In the main loop;
+    Check for collision of first obstacle with camera.
+    If not colliding (ie; off-screen);
+      Take it off the obstaclesLive list and give it back to the cache.
+      Move one along in the 'first' iterator to know what is the next obstacle still on screen
+    Check for collision of last obstacle with camera.
+    If colliding;
+      Iterate one more on the obstacles list; .next(lastObstacle.pos().x)
+      Store this new obstacle as the 'last' obstacle
+      Add it to the obstaclesLive list
+
+  */
+
+
+
   var i,
       startX = 500,
       xOffset,
