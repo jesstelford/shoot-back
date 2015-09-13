@@ -31,6 +31,7 @@ module.exports = function(name, createNew, defaultValue) {
     var nextStoredResult,
         lastStoredResult,
         storedIterator = cache[Symbol.iterator](),
+        position = 0,
         newValue,
         result,
         size = cache.size(),
@@ -66,13 +67,13 @@ module.exports = function(name, createNew, defaultValue) {
 
           storedIterator = cache[Symbol.iterator]();
 
-          for (i = 0; i < size && i < newSize; i++) {
+          for (i = 0; i < size && i < newSize && i < position; i++) {
             storedIterator.next();
+            lastStoredResult = undefined;
           }
 
           size = newSize;
         }
-
         // Was there a value that we stalled on last time?
         if (lastStoredResult) {
           nextStoredResult = lastStoredResult;
@@ -122,6 +123,8 @@ module.exports = function(name, createNew, defaultValue) {
           // there's still stored items, so keep iterating
           result = nextStoredResult;
         }
+
+        position++;
 
         // return the current sequence value
         return result;
