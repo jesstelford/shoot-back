@@ -7,12 +7,12 @@ var forOf = require('../utils/for-of'),
     getBullet = require('../bullet'),
     getPlayer = require('../player'),
     getCamera = require('../camera'),
-    obstacles = require('../obstacles'),
     recording = require('../recording'),
     objectAssign = require('object-assign'),
     subscribable = require('../mixins/subscribable'),
     cacheGenerator = require('../cache-generator'),
     inputGenerator = require('../input-generator'),
+    obstacleGenerator = require('../obstacle-generator'),
     createEnemySequence = require('../create-enemy-sequence');
 
 var KEY_PAGE_UP = 34,
@@ -29,6 +29,7 @@ var KEY_PAGE_UP = 34,
     bullets = new Set(),
     players = cacheGenerator('players'),
     keyState = new Map(),
+    obstacles,
     gameWidth = 0,
     gameHeight = 0,
     keysRecord = new Map(),
@@ -36,7 +37,6 @@ var KEY_PAGE_UP = 34,
     playersLive = cacheGenerator('players:live'),
     enemiesLive = cacheGenerator('enemies:live'),
     viewBoundary,
-    obstaclesLive = cacheGenerator('obstacles:live'),
     totalGameTime = 0,
     currentPlayer,
     sequencesLive = [],
@@ -278,81 +278,9 @@ function setupEnemies() {
 
 }
 
-function setupObstacles() {
+function initObstacles() {
 
-  /*
-  TODO: Setup a generator to create an obstacle given a previous obstacle's
-  position.
-  Create a recording using that generator
-  Iterate on the recording until a generated obstacle is off the screen to
-  the right.
-  Generate an iterator to track the 'first' obstacle in the recording
-  Record which was the last obstacle generated.
-  Add each obstacle to the obstaclesLive list for collision in the main loop.
-  Now we have our initial set of obstacles.
-
-  In the main loop;
-    Check for collision of first obstacle with camera.
-    If not colliding (ie; off-screen);
-      Take it off the obstaclesLive list and give it back to the cache.
-      Move one along in the 'first' iterator to know what is the next obstacle still on screen
-    Check for collision of last obstacle with camera.
-    If colliding;
-      Iterate one more on the obstacles list; .next(lastObstacle.pos().x)
-      Store this new obstacle as the 'last' obstacle
-      Add it to the obstaclesLive list
-
-  */
-
-
-
-  var i,
-      startX = 500,
-      xOffset,
-      spaceX,
-      minScale = Math.floor(gameHeight / 6),
-      maxScale = Math.floor(gameHeight / 2),
-      scale,
-      obstacle;
-
-  for (i = 0; i < 4; i++) {
-
-    scale = random.betweenInts(minScale, maxScale);
-
-    // Origin is top-left of obstacle, so need to shift it in x-axis
-    xOffset = -scale / 2;
-
-    // A random amount of space between the last one and this one
-    spaceX = random.betweenInts(scale / 2, scale * 2);
-
-    obstacle = obstacles.get(i);
-    obstacle.moveTo(startX + xOffset + spaceX, 0);
-    obstacle.setScale(scale);
-    obstaclesLive.put(obstacle);
-
-    startX += scale + spaceX;
-  }
-
-  startX = 500;
-
-  for (i = 0; i < 4; i++) {
-
-    scale = random.betweenInts(minScale, maxScale);
-
-    // Origin is bottom-right of obstacle, so need to shift it in x-axis
-    xOffset = scale / 2;
-
-    // A random amount of space between the last one and this one
-    spaceX = random.betweenInts(scale / 2, scale * 2);
-
-    obstacle = obstacles.get(i);
-    obstacle.moveTo(startX + xOffset + spaceX, gameHeight);
-    obstacle.setScale(scale);
-    obstacle.rotateTo(Math.PI);
-    obstaclesLive.put(obstacle);
-
-    startX += scale + spaceX;
-  }
+  obstacles = obstacleGenerator(camera);
 
 }
 
@@ -372,11 +300,7 @@ function resetGame() {
 
   bullets.clear();
 
-  forOf(obstaclesLive, function(obstacle) {
-    obstacles.put(obstacle);
-  });
-
-  obstaclesLive.clear();
+  obstacles.reset();
 
   forOf(sequencesLive, function(sequence) {
 
@@ -421,7 +345,6 @@ function resetGame() {
   });
 
   setupEnemies.call(this);
-  setupObstacles();
 
   totalGameTime = 0;
 
@@ -507,6 +430,8 @@ module.exports = objectAssign(
 
       camera = getCamera(0, 0, width, height);
 
+      initObstacles();
+
       viewBoundary = {
         top: camera.getPos().y,
         right: camera.getPos().x + camera.getSize().width,
@@ -542,6 +467,8 @@ module.exports = objectAssign(
         bottom: camera.getPos().y + camera.getSize().height,
         left: camera.getPos().x
       };
+
+      obstacles.update();
 
       loopBullets(bullets, steps);
 
@@ -586,7 +513,7 @@ module.exports = objectAssign(
 
         handleInput.call(self, player, steps);
 
-        forOf(obstaclesLive, function(obstacle) {
+        forOf(obstacles.live, function(obstacle) {
 
           var collisionResponse = player.collidingWith(obstacle, true, true);
 
@@ -674,7 +601,7 @@ module.exports = objectAssign(
         }
       });
 
-      forOf(obstaclesLive, function(obstacle) {
+      forOf(obstacles.live, function(obstacle) {
         if (obstacle.collidingWith(camera, false)) {
           obstacle.render(ctx);
         }
