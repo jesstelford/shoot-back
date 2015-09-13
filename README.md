@@ -1,5 +1,18 @@
 # Shoot Back
 
+Side-scrolling shooter with a unique time reversal mechanic: Death causes time
+to reset so you can play through the level again with your past self.
+
+## Instructions
+
+* Arrows to move
+* Space to shoot
+* Hit an enemy and time resets
+
+----
+
+# Goals for future development
+
 Unique endless sidescrolling shooter for 2 players.
 
 ## Idea
