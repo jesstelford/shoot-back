@@ -28,7 +28,7 @@ module.exports = function createEnemySequence(opts) {
 
   for (var i = 0; i < options.spawnInfo.count; i++) {
 
-    let enemy = options.getEnemy(options.spawnInfo.type),
+    var enemy = options.getEnemy(options.spawnInfo.type),
         creationPromise,
         deathPromise,
         deathUnsub;

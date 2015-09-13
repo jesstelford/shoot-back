@@ -36,7 +36,7 @@ module.exports = function(amplitude, angleChangePerFrame, startAt, axis) {
 
       if (axis === 'x') {
 
-        let startVal = 0;
+        var startVal = 0;
 
         if (startAt === 'bottom') {
           startVal = -state.amplitude;
@@ -53,7 +53,7 @@ module.exports = function(amplitude, angleChangePerFrame, startAt, axis) {
 
       if (axis === 'y') {
 
-        let startVal = 0;
+        var startVal = 0;
 
         if (startAt === 'bottom') {
           startVal = -state.amplitude;
