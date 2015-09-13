@@ -340,7 +340,7 @@ function resetGame() {
   });
 
   forAllPlayers(function(player) {
-    player.moveTo(50, 50);
+    player.moveTo(200, gameHeight / 2);
     player.setEnergy(10);
   });
 
@@ -373,6 +373,7 @@ function createNewCurrentPlayer() {
 
   currentPlayer = player;
   player.setEnergy(10);
+  player.moveTo(200, gameHeight / 2);
   playersLive.put(player);
 
   keysRecord.set(currentPlayer, {

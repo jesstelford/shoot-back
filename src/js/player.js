@@ -32,7 +32,6 @@ module.exports = function getPlayer() {
   player.setId(UUID);
   UUID++;
 
-  player.moveTo(50, 50);
   player.setColour('blue');
   player.setScale(5);
   player.setLineWidth(1);
