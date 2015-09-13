@@ -44,7 +44,7 @@ module.exports = function(cacheName) {
         }
       }
 
-      if(cache.size > 0) {
+      if (cache.size > 0) {
         result = selector(cache);
         if (result) {
           cache.delete(result);
@@ -60,7 +60,9 @@ module.exports = function(cacheName) {
     },
 
     put: function(item) {
-      cache.add(item);
+      if (item) {
+        cache.add(item);
+      }
     },
 
     delete: function(item) {
