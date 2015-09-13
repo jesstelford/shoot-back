@@ -8,6 +8,7 @@ var forOf = require('../utils/for-of'),
     getPlayer = require('../player'),
     getCamera = require('../camera'),
     obstacles = require('../obstacles'),
+    recording = require('../recording'),
     objectAssign = require('object-assign'),
     subscribable = require('../mixins/subscribable'),
     cacheGenerator = require('../cache-generator'),
@@ -84,7 +85,7 @@ function keydown(event) {
 
   keyState.get(currentPlayer).handleKeyDown(event.keyCode);
 
-  keysRecord.get(currentPlayer).push({
+  keysRecord.get(currentPlayer).recording.put({
     type: 'keydown',
     keyCode: event.keyCode
   })
@@ -98,7 +99,7 @@ function keyup(event) {
 
   keyState.get(currentPlayer).handleKeyUp(event.keyCode);
 
-  keysRecord.get(currentPlayer).push({
+  keysRecord.get(currentPlayer).recording.put({
     type: 'keyup',
     keyCode: event.keyCode
   })
@@ -138,11 +139,15 @@ function releaseAllKeys() {
 
 function setWhenOnKeypresses(when) {
 
-  keysRecord.get(currentPlayer).forEach(function(keyRecord) {
+  forOf(keysRecord.get(currentPlayer).recording, function(keyRecord) {
+    if (!keyRecord) {
+      return false;
+    }
     if (typeof keyRecord.whenHandled === 'undefined') {
       keyRecord.whenHandled = when;
     }
   });
+
 }
 
 function handleInput(player, steps) {
@@ -394,10 +399,19 @@ function resetGame() {
 
   totalGameTime = 0;
 
+  forAllPlayers(function(player) {
+    var keyRecordForPlayer = keysRecord.get(player);
+    // create a new iterator for replaying the keys
+    keyRecordForPlayer.iterator = keyRecordForPlayer.recording[Symbol.iterator]();
+  });
+
   resetKeys();
 }
 
 function createNewCurrentPlayer() {
+
+  var player,
+      keysRecordForPlayer;
 
   // Colour replay players differently
   // TODO: Alpha?
@@ -405,11 +419,18 @@ function createNewCurrentPlayer() {
     currentPlayer.setColour('#0000bb');
   }
 
-  var player = getPlayer();
+  player = getPlayer();
+  keysRecordForPlayer = recording('player-' + player.getId() + '-keys')
+
   currentPlayer = player;
   player.setEnergy(10);
   playersLive.put(player);
-  keysRecord.set(currentPlayer, []);
+
+  keysRecord.set(currentPlayer, {
+    recording: keysRecordForPlayer,
+    iterator: keysRecordForPlayer[Symbol.iterator]()
+  });
+
   keyState.set(currentPlayer, inputGenerator());
 
   // TODO: Make subscribers
@@ -501,26 +522,37 @@ module.exports = objectAssign(
       // Don't replay keys currently being recorded for current player
       forNotCurrentPlayer(function(player) {
 
-        var keyStateForPlayer = keyState.get(player);
+        var keyStateForPlayer = keyState.get(player),
+            keyRecorded;
+
+        function getKeyRecorded() {
+
+          return keysRecord.get(player).iterator.next(function(keyPress) {
+
+            return keyPress
+              && keyPress.whenHandled >= totalGameTime - elapsedTime
+              && keyPress.whenHandled < totalGameTime;
+
+          });
+        }
 
         // replay the keys that haven't been played yet
-        keysRecord.get(player).filter(function(keyPress) {
+        keyRecorded = getKeyRecorded();
 
-          return keyPress.whenHandled >= totalGameTime - elapsedTime
-            && keyPress.whenHandled < totalGameTime;
-
-        }).forEach(function(keyPress) {
+        while (keyRecorded.value) {
 
           // replay the input
-          switch (keyPress.type) {
+          switch (keyRecorded.value.type) {
             case 'keydown':
-              keyStateForPlayer.handleKeyDown(keyPress.keyCode);
+              keyStateForPlayer.handleKeyDown(keyRecorded.value.keyCode);
               break;
             case 'keyup':
-              keyStateForPlayer.handleKeyUp(keyPress.keyCode);
+              keyStateForPlayer.handleKeyUp(keyRecorded.value.keyCode);
               break;
           }
-        });
+
+          keyRecorded = getKeyRecorded();
+        }
 
       });
 
