@@ -6,7 +6,7 @@ var forOf = require('./utils/for-of'),
     recording = require('./recording'),
     cacheGenerator = require('./cache-generator');
 
-function initObstacles(data, live, camera, offsetCalculator) {
+function initObstacles(data, live, camera, offsetCalculator, angleCalculator) {
 
   var xOffset,
       spaceX,
@@ -34,7 +34,8 @@ function initObstacles(data, live, camera, offsetCalculator) {
       type: random.betweenInts(0, obstacles.getTypes().length),
       x: startX + xOffset + spaceX,
       y: data.y,
-      scale: scale
+      scale: scale,
+      angle: angleCalculator()
     }
   });
 
@@ -44,6 +45,7 @@ function setupObstacle(obstacleData, live) {
 
   obstacleData.obstacle = obstacles.get(obstacleData.type);
   obstacleData.obstacle.moveTo(obstacleData.x, obstacleData.y);
+  obstacleData.obstacle.rotateTo(obstacleData.angle);
   obstacleData.obstacle.setScale(obstacleData.scale);
 
   live.put(obstacleData.obstacle);
@@ -90,6 +92,36 @@ function resetObstacles(data, live, camera) {
 
 }
 
+function updateObstacles(data, live, camera) {
+
+  var obstacleData;
+
+  // Check if the first obstacles have moved off screen
+  while (!data.first.obstacle.collidingWith(camera, false)) {
+
+    // Remove it from the 'live' obstacle list
+    live.delete(data.first.obstacle);
+    obstacles.put(data.first.obstacle);
+    delete data.first.obstacle;
+
+    // Move along to the next obstacle which is the first
+    data.first = data.firstIterator.next().value;
+  }
+
+  // check if the last obstacle is now on screen
+  while (data.last.obstacle.collidingWith(camera, false)) {
+
+    // Move along to the next obstacle which is the first off screen
+    /* data.last = data.iterator.next(data.nextX).value; */
+    obstacleData = data.iterator.next(data.nextX).value;
+    setupObstacle(obstacleData, live);
+
+    data.last = obstacleData;
+
+    live.put(data.last.obstacle);
+  }
+}
+
 module.exports = function(camera) {
 
   var result = {
@@ -109,39 +141,14 @@ module.exports = function(camera) {
     },
 
     update: function() {
-
-      var obstacleData;
-
-      // Check if the first obstacles have moved off screen
-      while (!this.top.first.obstacle.collidingWith(camera, false)) {
-
-        // Remove it from the 'live' obstacle list
-        this.live.delete(this.top.first.obstacle);
-        obstacles.put(this.top.first.obstacle);
-        delete this.top.first.obstacle;
-
-        // Move along to the next obstacle which is the first
-        this.top.first = this.top.firstIterator.next().value;
-      }
-
-      // check if the last obstacle is now on screen
-      while (this.top.last.obstacle.collidingWith(camera, false)) {
-
-        // Move along to the next obstacle which is the first off screen
-        /* this.top.last = this.top.iterator.next(this.top.nextX).value; */
-        obstacleData = this.top.iterator.next(this.top.nextX).value;
-        setupObstacle(obstacleData, this.live);
-
-        this.top.last = obstacleData;
-
-        this.live.put(this.top.last.obstacle);
-      }
+      updateObstacles(this.top, this.live, camera);
+      updateObstacles(this.bottom, this.live, camera);
     },
 
     reset: function() {
 
       resetObstacles(this.top, this.live, camera);
-      /* resetObstacles(this.bottom, this.live, camera); */
+      resetObstacles(this.bottom, this.live, camera);
 
     }
 
@@ -150,13 +157,12 @@ module.exports = function(camera) {
   initObstacles(result.top, result.live, camera, function(scale) {
     // Origin is top-left of obstacle, so need to shift it in x-axis
     return -scale / 2;
-  });
-/*
+  }, function() { return 0 });
+
   initObstacles(result.bottom, result.live, camera, function(scale) {
     // Origin is top-left of obstacle, so need to shift it in x-axis
     return scale / 2;
-  });
-  */
+  }, function() { return Math.PI });
 
   result.reset();
 
