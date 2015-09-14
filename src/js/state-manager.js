@@ -19,8 +19,8 @@ module.exports = {
     this.state.update(elapsedTime);
   },
 
-  render: function(elapsedTime) {
-    this.state.render(elapsedTime);
+  render: function(ctx) {
+    this.state.render(ctx);
   }
 
 }
