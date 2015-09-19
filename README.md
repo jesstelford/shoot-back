@@ -9,6 +9,57 @@ to reset so you can play through the level again with your past self.
 * Space to shoot
 * Hit an enemy and time resets
 
+## Development
+
+### Prerequisites
+
+[Node.js]()
+
+### Installation
+
+```bash
+git clone https://github.com/jesstelford/shoot-back.git
+cd shoot-back
+npm install
+```
+
+### Building
+
+All builds result in files generated in the `/build` folder.
+
+Production Mode builds also result in files in the `/dist` folder.
+
+#### Development Mode
+
+**Local server**
+
+```bash
+npm start
+```
+
+Then leave this terminal open
+
+**Watch mode**
+*Will rebuild files automatically when they're changed.*
+
+```bash
+npm run watch
+```
+
+**Manual build**
+
+```bash
+npm run build
+```
+
+#### Production Mode
+
+```bash
+npm run build:prod
+```
+
+Note that this build will fail if the final generated `.zip` file is over 13kB.
+
 ----
 
 # Goals for future development
