@@ -4,6 +4,7 @@ var getCanvas = require('./canvas'),
     getText = require('./text'),
     framerate = require('./framerate')(60),
     gameState = require('./states/game'),
+    menuState = require('./states/menu'),
     stateManager = require('./state-manager'),
     zoomAndMove = require('./keyframes/zoom-and-move');
 
@@ -78,8 +79,26 @@ function setupGame() {
     livesText.setText('lives: ' + lives);
   });
 
-  stateManager.setState(gameState);
+  stateManager.setState(menuState);
   stateManager.init(canvas.getWidth(), canvas.getHeight());
+
+  menuState.on('selection', function(menuId) {
+    switch(menuId) {
+
+      case 'HELP':
+        window.location.href = '/help';
+        break;
+
+      case 'CREDITS':
+        window.location.href = '/credits';
+        break;
+
+      case 'START':
+        stateManager.setState(gameState);
+        stateManager.init(canvas.getWidth(), canvas.getHeight());
+        break;
+    }
+  });
 }
 
 function init() {
