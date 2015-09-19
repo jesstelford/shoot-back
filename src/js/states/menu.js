@@ -115,7 +115,7 @@ module.exports = objectAssign(
       });
 
       // default to the first menu item being selected
-      selectMenu(1);
+      selectMenu(0);
 
     },
 
