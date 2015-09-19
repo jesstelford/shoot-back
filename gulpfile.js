@@ -63,7 +63,7 @@ gulp.task('build_source', function() {
 });
 
 gulp.task('build_index', function() {
-  return gulp.src('src/index.html')
+  return gulp.src('src/*.html')
     .pipe(gulpif(prod, htmlmin({
       collapseWhitespace: true,
       removeAttributeQuotes: true,
