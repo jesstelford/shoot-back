@@ -445,10 +445,17 @@ module.exports = objectAssign(
 
       this.on('resize', camera.setSize.bind(camera));
 
+      resetGame.call(this);
+    },
+
+    transitionIn: function() {
       document.addEventListener('keydown', keydown, false);
       document.addEventListener('keyup', keyup, false);
+    },
 
-      resetGame.call(this);
+    transitionOut: function() {
+      document.removeEventListener('keydown', keydown, false);
+      document.removeEventListener('keyup', keyup, false);
     },
 
     update: function(elapsedTime) {

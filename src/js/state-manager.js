@@ -3,7 +3,17 @@
 module.exports = {
 
   setState: function(state) {
+
+    if (this.state && typeof this.state.transitionOut === 'function') {
+      this.state.transitionOut();
+    }
+
     this.state = state;
+
+    if (typeof this.state.transitionIn === 'function') {
+      this.state.transitionIn();
+    }
+
   },
 
   getState: function() {
