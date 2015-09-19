@@ -16,7 +16,7 @@ var canvas = getCanvas(),
 
 function setupHUD() {
 
-  var screenWidth = canvas.getWidth() / 2;
+  var screenWidth = canvas.getWidth();
 
   var texts = [100, screenWidth / 2, screenWidth - 100].map(function(xPos, index) {
 
@@ -35,7 +35,7 @@ function setupHUD() {
     text.setKeyframes(zoomAndMove({
       when: index * duration,
       duration: duration,
-      startPos: [canvas.getWidth() / 4, canvas.getHeight() / 4],
+      startPos: [canvas.getWidth() / 2, canvas.getHeight() / 2],
       endPos: [xPos, 20],
       maxZoom: 40,
       restZoom: 20,

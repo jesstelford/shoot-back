@@ -33,18 +33,13 @@ module.exports = {
   },
 
   writeText: function(ctx) {
-    var pos;
-
-    if (this.isMovable) {
-      pos = this.getPos();
-    } else {
-      pos = {x: 0, y: 0}
-    }
-
     ctx.font = this.getFontString();
     ctx.textAlign = this.textAlign || 'left';
     ctx.textBaseline = this.textBaseline || 'bottom';
-    ctx.fillText(this.text, pos.x, pos.y);
+
+    // NOTE: We position it at 0, 0, and instead use the `transformer` mixin to
+    // move the text around
+    ctx.fillText(this.text, 0, 0);
   }
 
 };
