@@ -7,6 +7,7 @@ var getText = require('../text'),
 var KEY_UP = 38,
     KEY_DOWN = 40,
     KEY_SPACE = 32,
+    KEY_ENTER = 13,
     currentMenu = 0,
     menuItemRenderMaxY,
     menuItemRenderMinY,
@@ -76,6 +77,7 @@ module.exports = objectAssign(
             break;
 
           case KEY_SPACE:
+          case KEY_ENTER:
             this.trigger('selection', activeMenus[currentMenu].id);
             break;
         }
