@@ -20,7 +20,7 @@ module.exports = {
    * @return Function an unsubscribe function to stop executing on update
    */
   registerUpdatable: function(updatable) {
-    invariant();
+    invariant.call(this);
     return this.on('update', updatable);
   }
 

@@ -4,6 +4,7 @@ var forOf = require('../utils/for-of'),
     random = require('../random'),
     updater = require('../mixins/updater'),
     enemies = require('../enemies'),
+    renderer = require('../mixins/renderer'),
     getBullet = require('../bullet'),
     getPlayer = require('../player'),
     getCamera = require('../camera'),
@@ -424,6 +425,7 @@ module.exports = objectAssign(
   {},
   subscribable(),
   updater,
+  renderer,
   {
     init: function(width, height) {
       totalGameTime = 0;
@@ -464,6 +466,8 @@ module.exports = objectAssign(
           steps = elapsedTime / targetElapsedTime;
 
       totalGameTime += elapsedTime;
+
+      self.trigger('update', elapsedTime, totalGameTime, steps);
 
       setWhenOnKeypresses(totalGameTime);
 
@@ -627,6 +631,8 @@ module.exports = objectAssign(
       });
 
       camera.resetTransformations(ctx);
+
+      this.trigger('render', ctx);
 
     }
   }

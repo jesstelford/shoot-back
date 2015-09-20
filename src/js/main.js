@@ -65,19 +65,7 @@ function setupCanvas() {
   ctx = canvas.getContext();
 }
 
-function setupGame() {
-
-  gameState.on('score', function(score) {
-    scoreText.setText('score: ' + score);
-  });
-
-  gameState.on('energy', function(energy) {
-    energyText.setText('energy: ' + energy);
-  });
-
-  gameState.on('lives', function(lives) {
-    livesText.setText('lives: ' + lives);
-  });
+function setupMenuState() {
 
   stateManager.setState(menuState);
   stateManager.init(canvas.getWidth(), canvas.getHeight());
@@ -94,26 +82,48 @@ function setupGame() {
         break;
 
       case 'START':
-        stateManager.setState(gameState);
-        stateManager.init(canvas.getWidth(), canvas.getHeight());
+        setupGame();
         break;
     }
   });
+
+}
+
+function setupGame() {
+
+  setupHUD();
+
+  gameState.registerUpdatable(updateHUD);
+  gameState.registerRenderable(renderHUD);
+
+  gameState.on('score', function(score) {
+    scoreText.setText('score: ' + score);
+  });
+
+  gameState.on('energy', function(energy) {
+    energyText.setText('energy: ' + energy);
+  });
+
+  gameState.on('lives', function(lives) {
+    livesText.setText('lives: ' + lives);
+  });
+
+  stateManager.setState(gameState);
+  stateManager.init(canvas.getWidth(), canvas.getHeight());
+
 }
 
 function init() {
 
   setupCanvas();
 
-  setupHUD();
-
   gameRunning = true;
-  setupGame();
+  setupMenuState();
 
   loop();
 }
 
-function loopHUD(elapsedTime) {
+function updateHUD(elapsedTime) {
 
   // update keyframes
   energyText.updateKeyFrames(elapsedTime);
@@ -140,10 +150,6 @@ function loop() {
   ctx.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
   stateManager.render(ctx);
-
-  loopHUD(elapsedTime);
-
-  renderHUD();
 
   requestAnimationFrame(loop);
 
