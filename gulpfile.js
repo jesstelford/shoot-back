@@ -39,7 +39,7 @@ program
 var prod = !!program.prod;
 
 gulp.task('default', ['build']);
-gulp.task('build', ['build_source', 'build_index', 'build_styles']);
+gulp.task('build', ['build_source', 'build_html', 'build_styles']);
 
 gulp.task('build_source', function() {
   // TODO: Use envify here
@@ -62,7 +62,7 @@ gulp.task('build_source', function() {
     .pipe(gulp.dest('build'));
 });
 
-gulp.task('build_index', function() {
+gulp.task('build_html', function() {
   return gulp.src('src/*.html')
     .pipe(gulpif(prod, htmlmin({
       collapseWhitespace: true,
@@ -107,7 +107,7 @@ gulp.task('dist', ['build'], function() {
 gulp.task('watch', function() {
   gulp.watch('src/js/**/*.js', ['build_source']);
   gulp.watch('src/css/**/*.css', ['build_styles']);
-  gulp.watch('src/index.html', ['build_index']);
+  gulp.watch('src/*.html', ['build_html']);
 });
 
 gulp.task('serve', ['build'], function() {
