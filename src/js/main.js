@@ -86,11 +86,11 @@ function setupGame() {
     switch(menuId) {
 
       case 'HELP':
-        window.location.href = '/help';
+        window.location.href = '/help.html';
         break;
 
       case 'CREDITS':
-        window.location.href = '/credits';
+        window.location.href = '/credits.html';
         break;
 
       case 'START':
