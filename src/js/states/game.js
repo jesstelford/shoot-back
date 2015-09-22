@@ -540,7 +540,7 @@ module.exports = objectAssign(
       forOf(enemiesLive, function(enemy) {
 
         // update enemy keyframes
-        enemy.updateKeyFrames(elapsedTime);
+        enemy.updateKeyframes(elapsedTime);
 
         // check for player collisions
         forOf(playersLive, function(player) {

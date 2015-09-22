@@ -43,7 +43,7 @@ module.exports = {
     this.keyframes = keyframes;
   },
 
-  updateKeyFrames: function(elapsedTime) {
+  updateKeyframes: function(elapsedTime) {
 
     var self = this;
 

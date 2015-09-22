@@ -126,9 +126,9 @@ function init() {
 function updateHUD(elapsedTime) {
 
   // update keyframes
-  energyText.updateKeyFrames(elapsedTime);
-  livesText.updateKeyFrames(elapsedTime);
-  scoreText.updateKeyFrames(elapsedTime);
+  energyText.updateKeyframes(elapsedTime);
+  livesText.updateKeyframes(elapsedTime);
+  scoreText.updateKeyframes(elapsedTime);
 }
 
 function renderHUD() {
