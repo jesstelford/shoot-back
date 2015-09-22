@@ -27,7 +27,6 @@ var KEY_PAGE_UP = 34,
     lives = 4,
     camera,
     deaths = 0,
-    bullets = new Set(),
     players = cacheGenerator('players'),
     keyState = new Map(),
     obstacles,
@@ -35,6 +34,7 @@ var KEY_PAGE_UP = 34,
     gameHeight = 0,
     keysRecord = new Map(),
     bulletCache = cacheGenerator('bullets'),
+    bulletsLive = cacheGenerator('bullets:live'),
     playersLive = cacheGenerator('players:live'),
     enemiesLive = cacheGenerator('enemies:live'),
     viewBoundary,
@@ -197,7 +197,7 @@ function handleInput(player, steps) {
         }
       });
 
-      bullets.add(newBullet);
+      bulletsLive.put(newBullet);
 
       player.changeEnergy(-1);
       if (player === currentPlayer) {
@@ -211,7 +211,7 @@ function handleInput(player, steps) {
 
 function loopBullets(bullets, steps) {
 
-  bullets.forEach(function(bullet) {
+  forOf(bullets, function(bullet) {
 
     // move / age / etc
     bullet.update(steps);
@@ -295,11 +295,11 @@ function resetKeys() {
 function resetGame() {
 
   // Clean up reusable game objects
-  forOf(bullets, function(bullet) {
+  forOf(bulletsLive, function(bullet) {
     bulletCache.put(bullet);
   });
 
-  bullets.clear();
+  bulletsLive.clear();
 
   obstacles.reset();
 
@@ -482,7 +482,7 @@ module.exports = objectAssign(
 
       obstacles.update();
 
-      loopBullets(bullets, steps);
+      loopBullets(bulletsLive, steps);
 
       // Don't replay keys currently being recorded for current player
       forNotCurrentPlayer(function(player) {
@@ -569,13 +569,13 @@ module.exports = objectAssign(
       });
 
       // check for bullet collisions
-      forOf(bullets, function(bullet) {
+      forOf(bulletsLive, function(bullet) {
         forOf(enemiesLive, function(enemy) {
           if (bullet.collidingWith(enemy)) {
 
             // kill this bullet
             bullet.die();
-            bullets.delete(bullet);
+            bulletsLive.delete(bullet);
             bulletCache.put(bullet);
 
             // kill this enemy
@@ -619,7 +619,7 @@ module.exports = objectAssign(
         }
       });
 
-      bullets.forEach(function(bullet) {
+      forOf(bulletsLive, function(bullet) {
 
         if (!bullet.dead()) {
           // only render when on screen
