@@ -5,6 +5,7 @@ var ttl = require('./mixins/ttl'),
     scalable = require('./mixins/scalable'),
     killable = require('./mixins/killable'),
     strokable = require('./mixins/strokable'),
+    keyframed = require('./mixins/keyframed'),
     colourable = require('./mixins/colourable'),
     collidable = require('./mixins/collidable'),
     renderable = require('./mixins/renderable'),
@@ -12,7 +13,8 @@ var ttl = require('./mixins/ttl'),
     subscribable = require('./mixins/subscribable'),
     objectAssign = require('object-assign');
 
-var bulletPath = new Path2D('M-2.5 0.5 l4 0'),
+var targetElapsedTime = 1000 / 60, // 60fps
+    bulletPath = new Path2D('M-2.5 0.5 l4 0'),
     speed = 10;
 
 module.exports = function getBullet() {
@@ -25,6 +27,7 @@ module.exports = function getBullet() {
     collidable,
     scalable,
     killable,
+    keyframed,
     strokable,
     renderable,
     ttl,
@@ -38,18 +41,26 @@ module.exports = function getBullet() {
         this.setColour('blue');
         this.setTtl(3000);
         this.birth();
+        this.resetKeyframes();
+        this.setKeyframes([
+          {
+            when: 0,
+            func: 'move',
+            params: function(elapsedTime) {
+              var steps = elapsedTime / targetElapsedTime;
+              return [steps * speed, 0];
+            },
+            loopFor: -1
+          }
+        ]);
       },
 
       update: function(steps) {
-        this.movement(steps);
+        this.updateKeyframes(steps * targetElapsedTime);
         this.updateTtl(steps);
         if (this.getTtl() < 0) {
           this.die();
         }
-      },
-
-      movement: function(steps) {
-        this.move(steps * speed, 0);
       },
 
       dead: function() {
