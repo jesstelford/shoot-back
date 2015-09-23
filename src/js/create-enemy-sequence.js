@@ -79,9 +79,6 @@ module.exports = function createEnemySequence(opts) {
     options.onEveryDead();
   });
 
-  options.spawnInfo.creationPromises = creationPromises;
-  options.spawnInfo.deathPromises = deathPromises;
-
   return options.spawnInfo;
 
 }
