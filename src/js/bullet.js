@@ -15,8 +15,7 @@ var ttl = require('./mixins/ttl'),
     objectAssign = require('object-assign');
 
 var targetElapsedTime = 1000 / 60, // 60fps
-    bulletPath = new Path2D('M-2.5 0.5 l4 0'),
-    speed = 10;
+    bulletPath = new Path2D('M-2.5 0.5 l4 0');
 
 module.exports = function getBullet() {
 
@@ -49,17 +48,6 @@ module.exports = function getBullet() {
         this.setTtl(3000);
         this.birth();
         this.resetKeyframes();
-        this.setKeyframes([
-          {
-            when: 0,
-            func: 'move',
-            params: function(elapsedTime) {
-              var steps = elapsedTime / targetElapsedTime;
-              return [steps * speed, 0];
-            },
-            loopFor: -1
-          }
-        ]);
 
         cancelUpdate = this.registerUpdatable(function(steps) {
 

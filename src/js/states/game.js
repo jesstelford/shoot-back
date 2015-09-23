@@ -42,6 +42,7 @@ var KEY_PAGE_UP = 34,
     currentPlayer,
     sequencesLive = [],
     playerMoveSpeed = 5,
+    playerBulletSpeed = 10,
     targetElapsedTime = 1000 / 60, // 60fps
     sequencesGenerated = [],
     sequenceGenerators = [
@@ -241,6 +242,19 @@ function handleInput(player, steps) {
         }
 
       });
+
+      // The movement of the bullet
+      newBullet.setKeyframes([
+        {
+          when: 0,
+          func: 'move',
+          params: function(elapsedTime) {
+            var steps = elapsedTime / targetElapsedTime;
+            return [steps * playerBulletSpeed, 0];
+          },
+          loopFor: -1
+        }
+      ]);
 
       bulletsLive.put(newBullet);
 
