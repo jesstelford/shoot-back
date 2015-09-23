@@ -180,12 +180,18 @@ function handleInput(player, steps) {
 
     // players have a limit to the number of bullets that can be fired
     if (player.getEnergy() > 0) {
-      newBullet = bulletCache.get(getBullet);
 
-      newBullet.init();
-
-      playerPos = player.getPos();
-      newBullet.moveTo(playerPos.x, playerPos.y);
+      newBullet = player.shoot(player.getPos(), [
+        {
+          when: 0,
+          func: 'move',
+          params: function(elapsedTime) {
+            var steps = elapsedTime / targetElapsedTime;
+            return [steps * playerBulletSpeed, 0];
+          },
+          loopFor: -1
+        }
+      ]);
 
       newBullet.forPlayer = player;
 
@@ -221,19 +227,6 @@ function handleInput(player, steps) {
         });
       });
 
-      newBullet.registerUpdatable(function() {
-
-        // when dead, remove it from the list of bullets
-        if (this.dead()) {
-          // remove from the active bullets list
-          bulletsLive.delete(this);
-
-          // put onto the cached bullets list
-          bulletCache.put(this);
-        }
-
-      });
-
       newBullet.onDeathOnce(function() {
         player.changeEnergy(1);
         if (player === currentPlayer) {
@@ -242,21 +235,6 @@ function handleInput(player, steps) {
           /* energyText.setText('energy: ' + player.getEnergy()); */
         }
       });
-
-      // The movement of the bullet
-      newBullet.setKeyframes([
-        {
-          when: 0,
-          func: 'move',
-          params: function(elapsedTime) {
-            var steps = elapsedTime / targetElapsedTime;
-            return [steps * playerBulletSpeed, 0];
-          },
-          loopFor: -1
-        }
-      ]);
-
-      bulletsLive.put(newBullet);
 
       player.changeEnergy(-1);
       if (player === currentPlayer) {
