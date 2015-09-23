@@ -31,7 +31,8 @@ module.exports = {
         when: After how many milliseconds does this keyframe occur?
         func: What function on `this` is called?
         params: A function accepting param `elapsedTime` (in ms), returning an
-                array of parameters to apply to func
+                array of parameters to apply to func. Return `false` to cancel
+                calling `func`
         loopFor: How many ms to loop for.
                  if < 0, loop forever
                  if 0, never loop
@@ -91,8 +92,10 @@ module.exports = {
       // Calculate the params to pass to the function
       params = frame.params.call(self, elapsedTime, frameState[frame.func]);
 
-      // Call the keyframe update function
-      self[frame.func].apply(self, params);
+      if (params !== false) {
+        // Call the keyframe update function
+        self[frame.func].apply(self, params);
+      }
     })
 
     this._keyframeElapsedTime += elapsedTime;
