@@ -197,6 +197,51 @@ function handleInput(player, steps) {
         }
       });
 
+      newBullet.registerUpdatable(function(steps) {
+
+        var thisBullet = this;
+
+        // Bullet is already dead, so early out
+        if (thisBullet.dead()) {
+          return;
+        }
+
+        forOf(enemiesLive, function(enemy) {
+          if (thisBullet.collidingWith(enemy)) {
+
+            // kill this bullet
+            thisBullet.die();
+
+            // kill this enemy
+            enemy.die();
+            enemiesLive.delete(enemy);
+            enemies.put(enemy);
+
+            score++;
+
+            // TODO: Make this a subscriber
+            self.trigger('score', score);
+            /* scoreText.setText('score: ' + score); */
+          }
+
+          // Can only kill 1 enemy at a time
+          return false;
+        });
+      });
+
+      newBullet.registerUpdatable(function() {
+
+        // when dead, remove it from the list of bullets
+        if (this.dead()) {
+          // remove from the active bullets list
+          bulletsLive.delete(this);
+
+          // put onto the cached bullets list
+          bulletCache.put(this);
+        }
+
+      });
+
       bulletsLive.put(newBullet);
 
       player.changeEnergy(-1);
@@ -207,25 +252,6 @@ function handleInput(player, steps) {
       }
     }
   }
-}
-
-function loopBullets(bullets, steps) {
-
-  forOf(bullets, function(bullet) {
-
-    // move / age / etc
-    bullet.update(steps);
-
-    // when dead, remove it from the list of bullets
-    if (bullet.dead()) {
-      // remove from the active bullets list
-      bullets.delete(bullet);
-
-      // put onto the cached bullets list
-      bulletCache.put(bullet);
-    }
-
-  });
 }
 
 function setupEnemies() {
@@ -482,8 +508,6 @@ module.exports = objectAssign(
 
       obstacles.update();
 
-      loopBullets(bulletsLive, steps);
-
       // Don't replay keys currently being recorded for current player
       forNotCurrentPlayer(function(player) {
 
@@ -537,6 +561,10 @@ module.exports = objectAssign(
 
       });
 
+      forOf(bulletsLive, function(bullet) {
+        bullet.trigger('update', steps);
+      });
+
       forOf(enemiesLive, function(enemy) {
 
         // update enemy keyframes
@@ -564,30 +592,6 @@ module.exports = objectAssign(
               enemiesLive.delete(enemy);
               enemies.put(enemy);
             }
-          }
-        });
-      });
-
-      // check for bullet collisions
-      forOf(bulletsLive, function(bullet) {
-        forOf(enemiesLive, function(enemy) {
-          if (bullet.collidingWith(enemy)) {
-
-            // kill this bullet
-            bullet.die();
-            bulletsLive.delete(bullet);
-            bulletCache.put(bullet);
-
-            // kill this enemy
-            enemy.die();
-            enemiesLive.delete(enemy);
-            enemies.put(enemy);
-
-            score++;
-
-            // TODO: Make this a subscriber
-            self.trigger('score', score);
-            /* scoreText.setText('score: ' + score); */
           }
         });
       });

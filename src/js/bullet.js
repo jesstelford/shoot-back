@@ -2,6 +2,7 @@
 
 var ttl = require('./mixins/ttl'),
     movable = require('./mixins/movable'),
+    updater = require('./mixins/updater'),
     scalable = require('./mixins/scalable'),
     killable = require('./mixins/killable'),
     strokable = require('./mixins/strokable'),
@@ -19,10 +20,13 @@ var targetElapsedTime = 1000 / 60, // 60fps
 
 module.exports = function getBullet() {
 
+  var cancelUpdate;
+
   var bullet = objectAssign(
     {},
     subscribable(),
     movable,
+    updater,
     colourable,
     collidable,
     scalable,
@@ -34,6 +38,9 @@ module.exports = function getBullet() {
     transformer,
     {
       init: function() {
+
+        this.cleanup()
+
         this.moveTo(0, 0);
         this.setScale(1);
         this.setLineWidth(3);
@@ -53,13 +60,22 @@ module.exports = function getBullet() {
             loopFor: -1
           }
         ]);
+
+        cancelUpdate = this.registerUpdatable(function(steps) {
+
+          this.updateKeyframes(steps * targetElapsedTime);
+          this.updateTtl(steps);
+          if (this.getTtl() < 0) {
+            this.die();
+          }
+        });
+
       },
 
-      update: function(steps) {
-        this.updateKeyframes(steps * targetElapsedTime);
-        this.updateTtl(steps);
-        if (this.getTtl() < 0) {
-          this.die();
+      cleanup: function() {
+        if (cancelUpdate) {
+          cancelUpdate();
+          cancelUpdate = null;
         }
       },
 
