@@ -189,7 +189,7 @@ function handleInput(player, steps) {
 
       newBullet.forPlayer = player;
 
-      newBullet.registerUpdatable(function(steps) {
+      newBullet.registerUpdatable(function() {
 
         var thisBullet = this;
 
@@ -576,7 +576,7 @@ module.exports = objectAssign(
       });
 
       forOf(bulletsLive, function(bullet) {
-        bullet.trigger('update', steps);
+        bullet.trigger('update', elapsedTime);
       });
 
       forOf(enemiesLive, function(enemy) {

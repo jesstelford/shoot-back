@@ -49,10 +49,10 @@ module.exports = function getBullet() {
         this.birth();
         this.resetKeyframes();
 
-        cancelUpdate = this.registerUpdatable(function(steps) {
+        cancelUpdate = this.registerUpdatable(function(elapsedTime) {
 
-          this.updateKeyframes(steps * targetElapsedTime);
-          this.updateTtl(steps);
+          this.updateKeyframes(elapsedTime);
+          this.updateTtl(elapsedTime / targetElapsedTime);
           if (this.getTtl() < 0) {
             this.die();
           }
