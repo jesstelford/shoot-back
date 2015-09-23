@@ -157,6 +157,7 @@ function handleInput(player, steps) {
   var keyStateForPlayer = keyState.get(player),
       newBullet,
       playerPos,
+      unregisterCollisionCheck,
       self = this;
 
   // TODO: Refactor to use subscription model
@@ -195,7 +196,7 @@ function handleInput(player, steps) {
 
       newBullet.forPlayer = player;
 
-      newBullet.registerUpdatable(function() {
+      unregisterCollisionCheck = newBullet.registerUpdatable(function() {
 
         var thisBullet = this;
 
@@ -228,6 +229,7 @@ function handleInput(player, steps) {
       });
 
       newBullet.onDeathOnce(function() {
+        unregisterCollisionCheck();
         player.changeEnergy(1);
         if (player === currentPlayer) {
           self.trigger('energy', player.getEnergy());
