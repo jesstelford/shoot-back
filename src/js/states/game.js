@@ -189,15 +189,6 @@ function handleInput(player, steps) {
 
       newBullet.forPlayer = player;
 
-      newBullet.onDeathOnce(function() {
-        player.changeEnergy(1);
-        if (player === currentPlayer) {
-          self.trigger('energy', player.getEnergy());
-          // TODO: Change to be a this.trigger('energy', player.getEnergy())
-          /* energyText.setText('energy: ' + player.getEnergy()); */
-        }
-      });
-
       newBullet.registerUpdatable(function(steps) {
 
         var thisBullet = this;
@@ -241,6 +232,15 @@ function handleInput(player, steps) {
           bulletCache.put(this);
         }
 
+      });
+
+      newBullet.onDeathOnce(function() {
+        player.changeEnergy(1);
+        if (player === currentPlayer) {
+          self.trigger('energy', player.getEnergy());
+          // TODO: Change to be a this.trigger('energy', player.getEnergy())
+          /* energyText.setText('energy: ' + player.getEnergy()); */
+        }
       });
 
       // The movement of the bullet
