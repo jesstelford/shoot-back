@@ -28,7 +28,7 @@ module.exports = function createEnemySequence(opts) {
 
   for (var i = 0; i < options.spawnInfo.count; i++) {
 
-    (function(enemy) {
+    (function(enemy, index) {
 
       var creationPromise,
           deathPromise,
@@ -41,7 +41,7 @@ module.exports = function createEnemySequence(opts) {
           // resolve, and hence the `.every` call below will never execute
           options.spawnInfo.timeouts.push(window.setTimeout(function() {
 
-            options.initEnemy(enemy);
+            options.initEnemy(enemy, index);
 
             // if any of these subscriptoins are unsubscribed from, then the
             // promise will not resolve, and hence the `.every` call below will
@@ -51,7 +51,7 @@ module.exports = function createEnemySequence(opts) {
               resolveDeath();
             }));
 
-            options.onCreated(enemy);
+            options.onCreated(enemy, index);
 
             resolveCreation();
 
@@ -65,7 +65,7 @@ module.exports = function createEnemySequence(opts) {
 
       deathPromises.push(deathPromise);
 
-    })(options.getEnemy(options.spawnInfo.type));
+    })(options.getEnemy(options.spawnInfo.type), i);
 
   }
 
