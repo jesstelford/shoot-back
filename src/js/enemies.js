@@ -77,6 +77,46 @@ function move(when, duration, rateX, rateY) {
   }
 }
 
+function shoot(when, frequency, duration, speedX) {
+
+  var timeSinceLast = 0,
+      pos;
+
+  if (speedX === undefined) {
+    speedX = -10;
+  }
+
+  return {
+    when: when,
+    func: 'shoot',
+    params: function(elapsedTime, state) {
+
+      state.timeSinceLast = state.timeSinceLast || 0;
+      state.timeSinceLast += elapsedTime;
+
+      if (state.timeSinceLast < frequency) {
+        // We don't want to shoot yet
+        return false;
+      }
+
+      state.timeSinceLast -= frequency;
+
+      if (this.isMovable) {
+        pos = this.getPos();
+      } else {
+        pos = {
+          x: 0,
+          y: 0
+        }
+      }
+
+      return [pos, [move(0, -1, speedX)]];
+
+    },
+    loopFor: duration
+  }
+}
+
 var path = new Path2D('M-10.5 -4.5 l20 4 l-20 4 l5 -4 l-5 -4'),
     collision = [
       {x: -10.5, y: -4.5},
@@ -92,6 +132,7 @@ var types = [
     keyframes: [
       move(0, 500, -2),
       fullWave(500, 12000, 3, 200, -1),
+      shoot(700, 1000, -1),
       move(4500, -1, -1),
       move(8500, -1, 3),
       move(12500, -1, -4)
