@@ -111,7 +111,7 @@ module.exports = {
           // Call the keyframe update function
           self[frame.func].apply(self, params);
         } else if (toString(params) === '[object Object]' && params.params && params.callback) {
-          params.callback(self[frame.func].apply(self, params.params));
+          params.callback.call(self, self[frame.func].apply(self, params.params));
 
         }
       }
