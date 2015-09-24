@@ -41,7 +41,17 @@ module.exports = {
       }
    */
   setKeyframes: function(keyframes) {
+
+    var self = this;
+
     this.keyframes = keyframes;
+
+    this.keyframes.forEach(function(frame) {
+      if (typeof frame.whenFunc === 'function') {
+        frame.when = frame.whenFunc.apply(self);
+      }
+    });
+
   },
 
   updateKeyframes: function(elapsedTime) {
@@ -102,8 +112,19 @@ module.exports = {
   },
 
   resetKeyframes: function() {
+
+    var self = this;
+
     delete this._keyframeElapsedTime;
     delete this._keyframeState;
+
+    if (this.keyframes) {
+      this.keyframes.forEach(function(frame) {
+        if (typeof frame.whenFunc === 'function') {
+          frame.when = frame.whenFunc.call(self);
+        }
+      });
+    }
   }
 
 };

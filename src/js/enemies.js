@@ -87,7 +87,10 @@ function shoot(when, frequency, duration, speedX) {
   }
 
   return {
-    when: when,
+    whenFunc: function() {
+      this._sequenceNumber = this._sequenceNumber || 0;
+      return when + 100 * this._sequenceNumber;
+    },
     func: 'shoot',
     params: function(elapsedTime, state) {
 

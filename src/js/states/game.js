@@ -276,12 +276,13 @@ function setupEnemies() {
   createEnemySequence({
     spawnInfo: spawnInfo,
     getEnemy: enemies.get,
-    initEnemy: function(enemy) {
+    initEnemy: function(enemy, index) {
+      enemy._sequenceNumber = index;
       enemy.resetKeyframes();
       enemy.moveTo(viewBoundary.right, spawnInfo.yPos);
       enemy.birth();
     },
-    onCreated: function(enemy) {
+    onCreated: function(enemy, index) {
       enemiesLive.put(enemy);
     },
     onEveryDead: function() {
