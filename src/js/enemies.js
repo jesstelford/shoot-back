@@ -149,7 +149,12 @@ function shoot(when, frequency, duration, speedX) {
         }
       }
 
-      return [pos, [move(0, -1, speedX)]];
+      return {
+        params: [pos, [move(0, -1, speedX)]],
+        callback: function(bullet) {
+          bullet.setColour(this.colour);
+        }
+      }
 
     },
     loopFor: duration
