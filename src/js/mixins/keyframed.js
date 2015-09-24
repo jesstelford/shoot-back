@@ -1,5 +1,7 @@
 'use strict';
 
+var toString = require('../utils/to-string');
+
 function ensureDefaults() {
 
   if (!this._keyframeElapsedTime) {
@@ -32,7 +34,9 @@ module.exports = {
         func: What function on `this` is called?
         params: A function accepting param `elapsedTime` (in ms), returning an
                 array of parameters to apply to func. Return `false` to cancel
-                calling `func`
+                calling `func`. Return an object with 2 keys: `params` and
+                `callback` to receive the result of calling `func` to the
+                callback.
         loopFor: How many ms to loop for.
                  if < 0, loop forever
                  if 0, never loop
@@ -103,8 +107,13 @@ module.exports = {
       params = frame.params.call(self, elapsedTime, frameState[frame.func]);
 
       if (params !== false) {
-        // Call the keyframe update function
-        self[frame.func].apply(self, params);
+        if (toString(params) === '[object Array]') {
+          // Call the keyframe update function
+          self[frame.func].apply(self, params);
+        } else if (toString(params) === '[object Object]' && params.params && params.callback) {
+          params.callback(self[frame.func].apply(self, params.params));
+
+        }
       }
     })
 
