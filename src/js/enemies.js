@@ -63,6 +63,41 @@ function figure8(when, durationPerLoop, radius) {
   ]
 }
 
+function cycle(when, durationPerCycle, cycles, func, paramsFuncs) {
+
+  var duration = durationPerCycle * cycles;
+
+  return {
+    when: when,
+    func: func,
+    params: function(elapsedTime, state) {
+
+      state.whichFunc = state.whichFunc || 0;
+      state.accumulatedElapsedTime = state.accumulatedElapsedTime || 0;
+
+      state.accumulatedElapsedTime += elapsedTime;
+
+      // We're done with this cycle
+      if (state.accumulatedElapsedTime >= durationPerCycle) {
+
+        // move along one cycle
+        state.whichFunc++;
+
+        // and wrap to the beginning if necessary
+        if (state.whichFunc >= paramsFuncs.length) {
+          state.whichFunc = 0;
+        }
+
+        // change the accumulated time
+        state.accumulatedElapsedTime -= durationPerCycle;
+      }
+
+      return paramsFuncs[state.whichFunc].call(this, elapsedTime, state);
+    },
+    loopFor: duration
+  }
+}
+
 function move(when, duration, rateX, rateY) {
   if (rateY === undefined) {
     rateY = 0;
@@ -135,11 +170,21 @@ var types = [
     rotation: Math.PI,
     keyframes: [
       move(0, 500, -2),
-      fullWave(500, 4000, 3, 200, -1),
-      shoot(700, 1000, -1),
-      move(4500, -1, -1),
-      move(8500, -1, 3),
-      move(12500, -1, -4)
+      shoot(500, 2000, -1),
+
+      fullWave(500, 4000, 30, 200, -1),
+
+      cycle(4500, 4500, 26, 'move', [
+        function (elapsedTime) {
+          return false;
+        },
+        function (elapsedTime) {
+          var step = elapsedTime / (1000 / 60);
+          return [step * 2, 0];
+        }
+      ]),
+
+      move(120000, -1, -2)
     ]
   },
   {
