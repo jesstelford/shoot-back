@@ -8,9 +8,10 @@ var getEnemy = require('./enemy'),
     keyframeCircle = require('./keyframes/circle'),
     objectAssign = require('object-assign');
 
-function fullWave(when, duration, waves, amplitude, direction) {
+function fullWave(when, durationPerWave, waves, amplitude, direction) {
 
   var radiansInCircle = Math.PI * 2,
+      duration = durationPerWave * waves,
       rotationRate = direction * waves * radiansInCircle / (60 * duration / 1000);
 
   return {
@@ -134,7 +135,7 @@ var types = [
     rotation: Math.PI,
     keyframes: [
       move(0, 500, -2),
-      fullWave(500, 12000, 3, 200, -1),
+      fullWave(500, 4000, 3, 200, -1),
       shoot(700, 1000, -1),
       move(4500, -1, -1),
       move(8500, -1, 3),
