@@ -437,6 +437,22 @@ function startReplay() {
 
 }
 
+function collisionWithPlayer(totalGameTime, player) {
+
+  if (player === currentPlayer) {
+
+    // Current player dying causes a game reset
+    playerDeath.call(this, totalGameTime);
+    return false;
+
+  } else {
+
+    // kill this player
+    playersLive.delete(player);
+    players.put(player);
+  }
+}
+
 function playerDeath(when) {
 
   releaseAllKeys();
@@ -585,23 +601,12 @@ module.exports = objectAssign(
 
           if (enemy.collidingWith(player)) {
 
-            if (player === currentPlayer) {
+            // kill this enemy
+            enemy.die();
+            enemiesLive.delete(enemy);
+            enemies.put(enemy);
 
-              // Current player dying causes a game reset
-              playerDeath.call(self, totalGameTime);
-              return false;
-
-            } else {
-
-              // kill this player
-              playersLive.delete(player);
-              players.put(player);
-
-              // kill this enemy
-              enemy.die();
-              enemiesLive.delete(enemy);
-              enemies.put(enemy);
-            }
+            collisionWithPlayer.call(self, totalGameTime, player);
           }
         });
       });
