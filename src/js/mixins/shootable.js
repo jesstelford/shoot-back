@@ -7,6 +7,14 @@ var forOf = require('../utils/for-of'),
 var bulletCache = cacheGenerator('bullets'),
     bulletsLive = cacheGenerator('bullets:live');
 
+function invariant() {
+  if (process.env.NODE_ENV !== 'production') {
+    if (!this.isSubscribable) {
+      throw new Error('Killable requires Subscribable to be mixed in');
+    }
+  }
+}
+
 module.exports = function() {
 
   var bullets = new Set();
@@ -16,7 +24,11 @@ module.exports = function() {
 
     shoot: function(startPos, keyframes) {
 
-      var bullet = bulletCache.get(getBullet);
+      var bullet;
+
+      invariant.call(this);
+
+      bullet = bulletCache.get(getBullet);
 
       keyframes = keyframes || [];
 
@@ -43,6 +55,8 @@ module.exports = function() {
 
       bullets.add(bullet);
       bulletsLive.put(bullet);
+
+      this.trigger('shoot', bullet);
 
       return bullet;
 

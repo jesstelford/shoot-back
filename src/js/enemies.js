@@ -149,12 +149,7 @@ function shoot(when, frequency, duration, speedX) {
         }
       }
 
-      return {
-        params: [pos, [move(0, -1, speedX)]],
-        callback: function(bullet) {
-          bullet.setColour(this.colour);
-        }
-      }
+      return [pos, [move(0, -1, speedX)]];
 
     },
     loopFor: duration
@@ -236,13 +231,23 @@ var enemies = {
 
       // custom construction function to set the type
       function() {
-        return getEnemy(objectAssign({type: type}, types[type]));
+        var enemy = getEnemy(objectAssign({type: type}, types[type])),
+            unsubShoot;
+
+        unsubShoot = enemy.on('shoot', function(bullet) {
+          bullet.setColour(enemy.colour);
+        });
+
+        enemy.onDeathOnce(unsubShoot);
+
+        return enemy;
       },
 
       // we're looking for a particular type
       function(toSearch) {
 
-        var found;
+        var found,
+            unsubShoot;
 
         forOf(toSearch, function(enemy) {
           if (enemy.type === type) {
@@ -250,6 +255,12 @@ var enemies = {
             return false;
           }
         });
+
+        unsubShoot = found.on('shoot', function(bullet) {
+          bullet.setColour(found.colour);
+        });
+
+        found.onDeathOnce(unsubShoot);
 
         return found;
 
