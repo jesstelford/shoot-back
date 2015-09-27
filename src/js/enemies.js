@@ -231,23 +231,13 @@ var enemies = {
 
       // custom construction function to set the type
       function() {
-        var enemy = getEnemy(objectAssign({type: type}, types[type])),
-            unsubShoot;
-
-        unsubShoot = enemy.on('shoot', function(bullet) {
-          bullet.setColour(enemy.colour);
-        });
-
-        enemy.onDeathOnce(unsubShoot);
-
-        return enemy;
+        return getEnemy(objectAssign({type: type}, types[type]));
       },
 
       // we're looking for a particular type
       function(toSearch) {
 
-        var found,
-            unsubShoot;
+        var found;
 
         forOf(toSearch, function(enemy) {
           if (enemy.type === type) {
@@ -255,12 +245,6 @@ var enemies = {
             return false;
           }
         });
-
-        unsubShoot = found.on('shoot', function(bullet) {
-          bullet.setColour(found.colour);
-        });
-
-        found.onDeathOnce(unsubShoot);
 
         return found;
 

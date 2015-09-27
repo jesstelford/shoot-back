@@ -284,6 +284,15 @@ function setupEnemies() {
     },
     onCreated: function(enemy, index) {
       enemiesLive.put(enemy);
+
+      enemy._unsubShoot = enemy.on('shoot', function(bullet) {
+        bullet.setColour(enemy.colour);
+      });
+    },
+    onDeath: function(enemy) {
+      if (enemy._unsubShoot) {
+        enemy._unsubShoot();
+      }
     },
     onEveryDead: function() {
       // all enemies dead!
