@@ -289,6 +289,26 @@ function setupEnemies() {
       enemy._unsubShoot = enemy.on('shoot', function(bullet) {
 
         bullet.setColour(enemy.colour);
+
+        // wire up collision checks
+        var unsubCollision = bullet.registerUpdatable(function(elapsedTime) {
+
+          forAllPlayers(function(player) {
+
+            if (!bullet.isAlive()) {
+              return;
+            }
+
+            if (bullet.collidingWith(player)) {
+              console.log('collisionWithPlayer', bullet._id);
+              bullet.die();
+              collisionWithPlayer.call(self, player);
+            }
+          });
+        });
+
+        bullet.onDeathOnce(unsubCollision);
+
       });
 
     },
@@ -332,6 +352,7 @@ function resetGame() {
 
   // Clean up reusable game objects
   forOf(bulletsLive, function(bullet) {
+    bullet.die();
     bulletCache.put(bullet);
   });
 
