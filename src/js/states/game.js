@@ -437,7 +437,7 @@ function startReplay() {
 
 }
 
-function collisionWithPlayer(totalGameTime, player) {
+function collisionWithPlayer(player) {
 
   if (player === currentPlayer) {
 
@@ -606,7 +606,7 @@ module.exports = objectAssign(
             enemiesLive.delete(enemy);
             enemies.put(enemy);
 
-            collisionWithPlayer.call(self, totalGameTime, player);
+            collisionWithPlayer.call(self, player);
           }
         });
       });
