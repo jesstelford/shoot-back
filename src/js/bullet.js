@@ -65,10 +65,6 @@ module.exports = function getBullet() {
           cancelUpdate();
           cancelUpdate = null;
         }
-      },
-
-      dead: function() {
-        return this.ttl <= 0;
       }
 
     }

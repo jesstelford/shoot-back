@@ -201,7 +201,7 @@ function handleInput(player, steps) {
         var thisBullet = this;
 
         // Bullet is already dead, so early out
-        if (thisBullet.dead()) {
+        if (!thisBullet.isAlive()) {
           return;
         }
 
@@ -640,7 +640,7 @@ module.exports = objectAssign(
 
       forOf(bulletsLive, function(bullet) {
 
-        if (!bullet.dead()) {
+        if (bullet.isAlive()) {
           // only render when on screen
           if (bullet.collidingWith(camera, false)) {
             bullet.render(ctx);
